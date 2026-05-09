@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Heart, Images, MessageSquareHeart } from "lucide-react";
+import { memorial } from "@/data/memorial";
 
 // --- Candle SVG with flickering flame ---
 function CandleSVG() {
@@ -346,6 +348,26 @@ export default function LandingPage() {
             Remembered
           </motion.span>
         </motion.h1>
+
+        {/* Profile photo */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.85 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.32, ease: "easeOut" }}
+          className="mb-6"
+        >
+          <Image
+            src={memorial.profilePhoto}
+            alt={memorial.shortName}
+            width={112}
+            height={112}
+            className="rounded-full object-cover border-4"
+            style={{
+              borderColor: "var(--accent-gold)",
+              boxShadow: "0 0 30px rgba(201,168,76,0.25)",
+            }}
+          />
+        </motion.div>
 
         {/* Tagline */}
         <motion.p
