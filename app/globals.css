@@ -49,6 +49,147 @@ body {
   50% { transform: translateY(6px); opacity: 1; }
 }
 
+/* ══════════════════════════════════════════════════════════════
+   FLYING ANGELS — 8 unique 2-D flight paths across the page
+   All coordinates use vw/vh so they scale to any screen.
+   --ao  = angel opacity (set per-element via inline style)
+   ══════════════════════════════════════════════════════════════ */
+
+/* afp1 — LTR diagonal rise: enters bottom-left, arcs up through centre, exits top-right */
+@keyframes afp1 {
+  0%   { transform: translate(-110px, 72vh) rotate(-12deg); opacity: 0; }
+  5%   { opacity: var(--ao, 0.22); }
+  25%  { transform: translate(22vw,  38vh) rotate(-16deg); opacity: var(--ao, 0.22); }
+  55%  { transform: translate(52vw,  16vh) rotate(-6deg);  opacity: var(--ao, 0.22); }
+  82%  { transform: translate(80vw,  24vh) rotate(4deg);   opacity: var(--ao, 0.22); }
+  95%  { opacity: 0; }
+  100% { transform: translate(calc(100vw + 110px), 28vh) rotate(8deg);  opacity: 0; }
+}
+
+/* afp2 — LTR gentle descent: enters top-left, slopes gently downward, exits bottom-right */
+@keyframes afp2 {
+  0%   { transform: translate(-110px, 10vh) rotate(6deg);  opacity: 0; }
+  5%   { opacity: var(--ao, 0.22); }
+  35%  { transform: translate(32vw,  28vh) rotate(9deg);   opacity: var(--ao, 0.22); }
+  70%  { transform: translate(68vw,  52vh) rotate(7deg);   opacity: var(--ao, 0.22); }
+  95%  { opacity: 0; }
+  100% { transform: translate(calc(100vw + 110px), 62vh) rotate(4deg);  opacity: 0; }
+}
+
+/* afp3 — LTR S-curve: enters left-mid, swoops down then climbs, exits top-right */
+@keyframes afp3 {
+  0%   { transform: translate(-110px, 45vh) rotate(4deg);  opacity: 0; }
+  5%   { opacity: var(--ao, 0.22); }
+  20%  { transform: translate(16vw,  70vh) rotate(18deg);  opacity: var(--ao, 0.22); }
+  45%  { transform: translate(44vw,  78vh) rotate(8deg);   opacity: var(--ao, 0.22); }
+  70%  { transform: translate(70vw,  34vh) rotate(-14deg); opacity: var(--ao, 0.22); }
+  95%  { opacity: 0; }
+  100% { transform: translate(calc(100vw + 110px), 18vh) rotate(-8deg); opacity: 0; }
+}
+
+/* afp4 — LTR low soar: stays near bottom, very gentle undulation */
+@keyframes afp4 {
+  0%   { transform: translate(-110px, 80vh) rotate(5deg);  opacity: 0; }
+  5%   { opacity: var(--ao, 0.22); }
+  30%  { transform: translate(28vw,  74vh) rotate(7deg);   opacity: var(--ao, 0.22); }
+  60%  { transform: translate(60vw,  70vh) rotate(5deg);   opacity: var(--ao, 0.22); }
+  95%  { opacity: 0; }
+  100% { transform: translate(calc(100vw + 110px), 78vh) rotate(3deg);  opacity: 0; }
+}
+
+/* afp5 — RTL diagonal descent: enters top-right, arcs down through centre, exits bottom-left */
+@keyframes afp5 {
+  0%   { transform: translate(calc(100vw + 110px), 10vh) rotate(-6deg); opacity: 0; }
+  5%   { opacity: var(--ao, 0.22); }
+  25%  { transform: translate(74vw,  22vh) rotate(-5deg);  opacity: var(--ao, 0.22); }
+  55%  { transform: translate(44vw,  50vh) rotate(-8deg);  opacity: var(--ao, 0.22); }
+  82%  { transform: translate(16vw,  66vh) rotate(-14deg); opacity: var(--ao, 0.22); }
+  95%  { opacity: 0; }
+  100% { transform: translate(-110px, 72vh) rotate(-18deg); opacity: 0; }
+}
+
+/* afp6 — RTL gentle climb: enters bottom-right, slopes up, exits top-left */
+@keyframes afp6 {
+  0%   { transform: translate(calc(100vw + 110px), 74vh) rotate(-6deg); opacity: 0; }
+  5%   { opacity: var(--ao, 0.22); }
+  35%  { transform: translate(64vw,  52vh) rotate(-9deg);  opacity: var(--ao, 0.22); }
+  70%  { transform: translate(28vw,  26vh) rotate(-7deg);  opacity: var(--ao, 0.22); }
+  95%  { opacity: 0; }
+  100% { transform: translate(-110px, 14vh) rotate(-4deg); opacity: 0; }
+}
+
+/* afp7 — RTL reverse S-curve: enters right-mid, swoops up then dips, exits bottom-left */
+@keyframes afp7 {
+  0%   { transform: translate(calc(100vw + 110px), 48vh) rotate(-4deg); opacity: 0; }
+  5%   { opacity: var(--ao, 0.22); }
+  20%  { transform: translate(80vw,  20vh) rotate(-20deg); opacity: var(--ao, 0.22); }
+  45%  { transform: translate(52vw,  12vh) rotate(-8deg);  opacity: var(--ao, 0.22); }
+  70%  { transform: translate(26vw,  56vh) rotate(12deg);  opacity: var(--ao, 0.22); }
+  95%  { opacity: 0; }
+  100% { transform: translate(-110px, 70vh) rotate(16deg); opacity: 0; }
+}
+
+/* afp8 — RTL high soar: stays near top, slow and stately */
+@keyframes afp8 {
+  0%   { transform: translate(calc(100vw + 110px), 8vh)  rotate(-3deg); opacity: 0; }
+  5%   { opacity: var(--ao, 0.22); }
+  35%  { transform: translate(62vw,  12vh) rotate(-5deg); opacity: var(--ao, 0.22); }
+  65%  { transform: translate(30vw,  8vh)  rotate(-3deg); opacity: var(--ao, 0.22); }
+  95%  { opacity: 0; }
+  100% { transform: translate(-110px, 10vh) rotate(-2deg); opacity: 0; }
+}
+
+/* ── Wing beat — pivots at the shoulder root ── */
+@keyframes wing-beat-left {
+  0%, 100% { transform: rotate(0deg)   skewY(0deg); }
+  30%       { transform: rotate(-26deg) skewY(-4deg); }
+  55%       { transform: rotate(10deg)  skewY(2deg); }
+  80%       { transform: rotate(-8deg)  skewY(-2deg); }
+}
+@keyframes wing-beat-right {
+  0%, 100% { transform: rotate(0deg)   skewY(0deg); }
+  30%       { transform: rotate(26deg)  skewY(4deg); }
+  55%       { transform: rotate(-10deg) skewY(-2deg); }
+  80%       { transform: rotate(8deg)   skewY(2deg); }
+}
+
+/* ── Halo ── */
+@keyframes halo-pulse {
+  0%, 100% { opacity: 0.7; transform: scale(1);    }
+  50%       { opacity: 1;   transform: scale(1.08); }
+}
+
+/* ── Shared angel flight wrapper ── */
+.angel-fly {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* Wings pivot at the shoulder */
+.wing-left {
+  transform-box: fill-box;
+  transform-origin: right 60%;
+  animation: wing-beat-left var(--flap-speed, 1.8s) ease-in-out infinite;
+  animation-delay: var(--flap-delay, 0s);
+}
+.wing-right {
+  transform-box: fill-box;
+  transform-origin: left 60%;
+  animation: wing-beat-right var(--flap-speed, 1.8s) ease-in-out infinite;
+  animation-delay: var(--flap-delay, 0s);
+}
+
+.angel-halo {
+  transform-box: fill-box;
+  transform-origin: center center;
+  animation: halo-pulse 3s ease-in-out infinite;
+}
+
 .candle-flame {
   animation: flicker 2.5s ease-in-out infinite;
   transform-origin: bottom center;

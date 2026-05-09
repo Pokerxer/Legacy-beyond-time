@@ -38,7 +38,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           ...style,
         }}
         {...props}
-      />
+      >
+        {children}
+      </button>
     )
   }
 )

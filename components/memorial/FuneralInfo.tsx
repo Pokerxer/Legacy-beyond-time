@@ -12,7 +12,7 @@ interface FuneralInfoProps {
 export default function FuneralInfo({ details }: FuneralInfoProps) {
   if (!details) {
     return (
-      <section id="funeral" className="px-6 py-16">
+      <section className="px-6 py-16">
         <div className="max-w-3xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -42,7 +42,7 @@ export default function FuneralInfo({ details }: FuneralInfoProps) {
     })
 
   return (
-    <section id="funeral" className="px-6 py-16">
+    <section className="px-6 py-16">
       <div className="max-w-3xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 30 }}

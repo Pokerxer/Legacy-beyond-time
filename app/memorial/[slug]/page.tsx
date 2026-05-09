@@ -14,6 +14,7 @@ import FamilySection from "@/components/memorial/FamilySection"
 import TributesWall from "@/components/memorial/TributesWall"
 import TributeModal from "@/components/memorial/TributeModal"
 import FuneralInfo from "@/components/memorial/FuneralInfo"
+import ProgramSection from "@/components/landing/ProgramSection"
 import type { TabId } from "@/components/memorial/NavigationTabs"
 
 const SECTION_IDS = ["overview", "gallery", "achievements", "tributes", "funeral"] as const
@@ -120,7 +121,10 @@ export default function MemorialPage({
 
       <TributesWall tributes={sampleTributes} onOpenModal={() => setTributeModalOpen(true)} />
 
-      <FuneralInfo details={data.funeralDetails} />
+      <section id="funeral">
+        <ProgramSection />
+        <FuneralInfo details={data.funeralDetails} />
+      </section>
 
       <TributeModal open={tributeModalOpen} onClose={() => setTributeModalOpen(false)} />
 

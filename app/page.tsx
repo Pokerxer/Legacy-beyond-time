@@ -3,8 +3,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Heart, Images, MessageSquareHeart } from "lucide-react";
+import { Heart, Images, ScrollText } from "lucide-react";
 import { memorial } from "@/data/memorial";
+import { fadeUpInView, fadeUp } from "@/components/landing/animations";
+import FlyingAngels from "@/components/landing/FlyingAngels";
+import BackgroundMusic from "@/components/landing/BackgroundMusic";
+import DonationsSection from "@/components/landing/DonationsSection";
+import CondolenceSlider from "@/components/landing/CondolenceSlider";
 
 // --- Candle SVG with flickering flame ---
 function CandleSVG() {
@@ -17,40 +22,24 @@ function CandleSVG() {
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
     >
-      {/* Glow behind flame */}
       <ellipse cx="40" cy="52" rx="22" ry="28" fill="rgba(201,168,76,0.12)" />
-
-      {/* Flame — flickering via CSS animation */}
       <g className="candle-flame">
-        {/* Outer flame */}
         <path
           d="M40 15 C32 28 26 38 28 50 C30 60 35 65 40 65 C45 65 50 60 52 50 C54 38 48 28 40 15Z"
           fill="url(#flameGrad)"
         />
-        {/* Inner bright core */}
         <path
           d="M40 32 C37 40 36 47 38 53 C39 57 40.5 59 40 59 C41 57 42 53 42 49 C43 43 42 38 40 32Z"
           fill="rgba(255,245,200,0.9)"
         />
       </g>
-
-      {/* Wick */}
       <line x1="40" y1="65" x2="40" y2="72" stroke="#555" strokeWidth="2" strokeLinecap="round" />
-
-      {/* Candle body */}
       <rect x="24" y="72" width="32" height="72" rx="4" fill="url(#candleGrad)" />
-
-      {/* Wax drip */}
       <path d="M24 82 Q20 90 22 100 L24 100Z" fill="rgba(245,240,232,0.4)" />
       <path d="M56 88 Q60 96 58 106 L56 106Z" fill="rgba(245,240,232,0.3)" />
-
-      {/* Candle top rim */}
       <ellipse cx="40" cy="72" rx="16" ry="4" fill="rgba(245,240,232,0.9)" />
-
-      {/* Candle base */}
       <rect x="18" y="141" width="44" height="8" rx="3" fill="url(#baseGrad)" />
       <rect x="14" y="146" width="52" height="6" rx="3" fill="url(#baseGrad2)" />
-
       <defs>
         <radialGradient id="flameGrad" cx="50%" cy="80%" r="60%">
           <stop offset="0%" stopColor="#fff7a1" />
@@ -79,7 +68,6 @@ function CandleSVG() {
 
 // --- Floating ember particles ---
 const PARTICLES = [
-  // Core embers rising from flame
   { left: "44%", delay: "0s", duration: "3.2s", drift: "12px", size: 3 },
   { left: "40%", delay: "0.8s", duration: "2.8s", drift: "-18px", size: 2 },
   { left: "48%", delay: "1.5s", duration: "3.6s", drift: "8px", size: 2.5 },
@@ -87,13 +75,11 @@ const PARTICLES = [
   { left: "46%", delay: "2s", duration: "3s", drift: "20px", size: 1.5 },
   { left: "37%", delay: "1.1s", duration: "3.4s", drift: "-6px", size: 2 },
   { left: "51%", delay: "2.4s", duration: "2.6s", drift: "15px", size: 1.5 },
-  // Wandering embers that drift further
   { left: "35%", delay: "0.6s", duration: "4.2s", drift: "-28px", size: 1.2 },
   { left: "53%", delay: "1.8s", duration: "3.8s", drift: "32px", size: 1 },
   { left: "39%", delay: "3s", duration: "4.8s", drift: "-22px", size: 1.8 },
   { left: "50%", delay: "0.3s", duration: "3s", drift: "24px", size: 1 },
   { left: "43%", delay: "2.8s", duration: "4.4s", drift: "-14px", size: 1.3 },
-  // Tiny scattered sparkles
   { left: "30%", delay: "1.2s", duration: "5s", drift: "-35px", size: 0.8 },
   { left: "56%", delay: "0.9s", duration: "4.6s", drift: "40px", size: 0.8 },
   { left: "47%", delay: "3.5s", duration: "3.5s", drift: "10px", size: 0.7 },
@@ -122,25 +108,6 @@ function Particles() {
   );
 }
 
-// Helper to build a fade-up motion prop set
-function fadeUp(delay = 0) {
-  return {
-    initial: { opacity: 0, y: 30 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.6, delay, ease: "easeOut" as const },
-  };
-}
-
-function fadeUpInView(delay = 0) {
-  return {
-    initial: { opacity: 0, y: 30 },
-    whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true as const },
-    transition: { duration: 0.6, delay, ease: "easeOut" as const },
-  };
-}
-
-// Pre-computed star positions — static values prevent SSR/client hydration mismatch
 const STARS = [
   { w: 1.7, h: 2.9, top: "96.6%", left: "75.9%", opacity: 0.25 },
   { w: 1.8, h: 1.9, top: "18.9%", left: "82.9%", opacity: 0.37 },
@@ -211,18 +178,21 @@ const steps = [
     label: "Create Tribute",
     description:
       "Families add the life story, achievements, and funeral details to build a lasting memorial.",
+    href: "/tributes",
   },
   {
     icon: Images,
     label: "Share Photos",
     description:
       "Upload cherished moments to the gallery — a beautiful masonry of memories.",
+    href: "/gallery",
   },
   {
-    icon: MessageSquareHeart,
-    label: "Leave Messages",
+    icon: ScrollText,
+    label: "Condolence Letter",
     description:
-      "Friends and loved ones submit personal tributes sharing how the person touched their lives.",
+      "Write a heartfelt condolence message to comfort the family and honour the memory of their loved one.",
+    href: "/condolences",
   },
 ];
 
@@ -232,6 +202,9 @@ export default function LandingPage() {
       className="relative flex flex-col min-h-screen overflow-x-hidden"
       style={{ background: "linear-gradient(160deg, #1a1a2e 0%, #16213e 60%, #0f0f1f 100%)" }}
     >
+      {/* Flying angels background */}
+      <FlyingAngels />
+
       {/* Skip to main content */}
       <a
         href="#main-content"
@@ -243,7 +216,7 @@ export default function LandingPage() {
 
       {/* Vignette overlay */}
       <div
-        className="absolute inset-0 pointer-events-none"
+        className="fixed inset-0 pointer-events-none z-[1]"
         aria-hidden="true"
         style={{
           background:
@@ -251,8 +224,8 @@ export default function LandingPage() {
         }}
       />
 
-      {/* Subtle star-field background — static positions to avoid hydration mismatch */}
-      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+      {/* Subtle star-field background */}
+      <div className="fixed inset-0 pointer-events-none z-[1]" aria-hidden="true">
         {STARS.slice(0, 20).map((s, i) => (
           <span
             key={i}
@@ -290,7 +263,7 @@ export default function LandingPage() {
       {/* ── HERO ── */}
       <section
         id="main-content"
-        className="relative flex flex-col items-center justify-center flex-1 px-6 pt-16 sm:pt-20 pb-12 sm:pb-16 text-center"
+        className="relative z-10 flex flex-col items-center justify-center flex-1 min-h-screen px-6 pt-20 sm:pt-24 pb-12 sm:pb-16 text-center"
       >
         <Particles />
 
@@ -302,7 +275,6 @@ export default function LandingPage() {
           className="relative mb-6 sm:mb-8 scale-[0.65] sm:scale-100 origin-bottom"
         >
           <CandleSVG />
-          {/* Pulsing golden aura */}
           <div
             className="glow-breathe absolute -bottom-6 left-1/2 -translate-x-1/2 rounded-full blur-3xl pointer-events-none"
             style={{
@@ -311,7 +283,6 @@ export default function LandingPage() {
               background: "radial-gradient(ellipse, rgba(201,168,76,0.35) 0%, transparent 70%)",
             }}
           />
-          {/* Outer halo ring */}
           <div
             className="absolute -bottom-4 left-1/2 -translate-x-1/2 rounded-full blur-xl pointer-events-none"
             style={{
@@ -354,7 +325,7 @@ export default function LandingPage() {
           initial={{ opacity: 0, scale: 0.85 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, delay: 0.32, ease: "easeOut" }}
-          className="mb-6"
+          className="mb-4"
         >
           <Image
             src={memorial.profilePhoto}
@@ -369,13 +340,41 @@ export default function LandingPage() {
           />
         </motion.div>
 
-        {/* Tagline */}
+        {/* Name */}
         <motion.p
           {...fadeUp(0.24)}
-          className="max-w-xl text-lg sm:text-xl leading-relaxed mb-10"
+          className="text-xl sm:text-2xl mb-2"
+          style={{ fontFamily: "var(--font-playfair)", color: "var(--accent-gold)" }}
+        >
+          {memorial.fullName}
+        </motion.p>
+
+        {/* Dates */}
+        <motion.p
+          {...fadeUp(0.28)}
+          className="text-sm mb-6"
           style={{ fontFamily: "var(--font-lato)", color: "var(--text-muted)" }}
         >
-          A place to honor, remember, and celebrate a life well lived.
+          {new Date(memorial.dateOfBirth).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}{" "}
+          &mdash;{" "}
+          {new Date(memorial.dateOfDeath).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </motion.p>
+
+        {/* Tagline */}
+        <motion.p
+          {...fadeUp(0.32)}
+          className="max-w-xl text-base leading-relaxed mb-4 italic"
+          style={{ fontFamily: "var(--font-lato)", color: "var(--text-muted)" }}
+        >
+          &ldquo;{memorial.tagline}&rdquo;
         </motion.p>
 
         {/* CTA */}
@@ -392,17 +391,17 @@ export default function LandingPage() {
               fontFamily: "var(--font-lato)",
               focusRingColor: "var(--accent-gold)",
             } as React.CSSProperties}
-            aria-label="View the memorial for Christiana Opara"
+            aria-label="View full memorial tribute"
           >
             <Heart size={18} aria-hidden="true" />
-            View Memorial
+            View Full Memorial
           </Link>
 
           <span
             className="text-xs sm:text-sm"
             style={{ color: "var(--text-muted)", fontFamily: "var(--font-lato)" }}
           >
-            — In loving memory of Christiana O. Opara
+            — In loving memory
           </span>
         </motion.div>
 
@@ -445,9 +444,20 @@ export default function LandingPage() {
         </motion.div>
       </section>
 
+      {/* ── DONATIONS ── */}
+      <section className="relative z-10" style={{ borderTop: "1px solid var(--border-gold)" }}>
+        <DonationsSection />
+      </section>
+
+      {/* ── CONDOLENCE LETTERS ── */}
+      <section id="condolence" className="relative z-10" style={{ borderTop: "1px solid var(--border-gold)" }}>
+        <CondolenceSlider />
+      </section>
+
       {/* ── HOW IT WORKS ── */}
       <section
-        className="relative px-6 py-14 sm:py-20"
+        className="relative z-10 px-6 py-14 sm:py-20"
+        style={{ borderTop: "1px solid var(--border-gold)" }}
         aria-labelledby="how-it-works-heading"
       >
         <div className="max-w-5xl mx-auto">
@@ -471,51 +481,54 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6">
             {steps.map((step, i) => {
               const Icon = step.icon;
+              const ctas = ["Leave a Tribute →", "Share Photos →", "Write a Letter →"];
               return (
                 <motion.article
                   key={step.label}
                   {...fadeUpInView(0.12 + i * 0.12)}
-                    className="relative rounded-2xl p-5 sm:p-8 flex flex-col items-center text-center transition-transform hover:-translate-y-1"
+                  className="relative rounded-2xl p-5 sm:p-8 flex flex-col items-center text-center"
                   style={{
                     background: "var(--card-bg)",
-                    border: "1px solid var(--border-gold)",
+                    border: "1px solid rgba(201,168,76,0.45)",
                     backdropFilter: "blur(10px)",
                     WebkitBackdropFilter: "blur(10px)",
+                    boxShadow: "0 0 20px rgba(201,168,76,0.08)",
                   }}
                 >
-                  {/* Step number */}
-                  <span
-                    className="absolute -top-3 sm:-top-4 left-1/2 -translate-x-1/2 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold"
-                    style={{
-                      background: "var(--accent-gold)",
-                      color: "#1a1a2e",
-                      fontFamily: "var(--font-lato)",
-                    }}
-                    aria-hidden="true"
+                  <a
+                    href={step.href!}
+                    className="flex flex-col items-center w-full transition-transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-[var(--accent-gold)] rounded-xl"
                   >
-                    {i + 1}
-                  </span>
+                    {/* Step number badge */}
+                    <span
+                      className="absolute -top-3 sm:-top-4 left-1/2 -translate-x-1/2 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold z-10"
+                      style={{ background: "var(--accent-gold)", color: "#1a1a2e", fontFamily: "var(--font-lato)" }}
+                      aria-hidden="true"
+                    >
+                      {i + 1}
+                    </span>
 
-                  {/* Icon */}
-                  <div
-                    className="mb-4 sm:mb-5 w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center"
-                    style={{ background: "rgba(201,168,76,0.12)" }}
-                  >
-                    <Icon size={26} style={{ color: "var(--accent-gold)" }} aria-hidden="true" />
-                  </div>
+                    {/* Icon */}
+                    <div
+                      className="mb-4 sm:mb-5 w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center"
+                      style={{ background: "rgba(201,168,76,0.18)" }}
+                    >
+                      <Icon size={26} style={{ color: "var(--accent-gold)" }} aria-hidden="true" />
+                    </div>
 
-                  <h3
-                    className="text-lg font-semibold mb-3"
-                    style={{ fontFamily: "var(--font-playfair)", color: "var(--text-primary)" }}
-                  >
-                    {step.label}
-                  </h3>
-                  <p
-                    className="text-sm leading-relaxed"
-                    style={{ fontFamily: "var(--font-lato)", color: "var(--text-muted)" }}
-                  >
-                    {step.description}
-                  </p>
+                    <h3 className="text-lg font-semibold mb-3" style={{ fontFamily: "var(--font-playfair)", color: "var(--text-primary)" }}>
+                      {step.label}
+                    </h3>
+                    <p className="text-sm leading-relaxed" style={{ fontFamily: "var(--font-lato)", color: "var(--text-muted)" }}>
+                      {step.description}
+                    </p>
+                    <span
+                      className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold tracking-wide"
+                      style={{ color: "var(--accent-gold)", fontFamily: "var(--font-lato)" }}
+                    >
+                      {ctas[i]}
+                    </span>
+                  </a>
                 </motion.article>
               );
             })}
@@ -525,11 +538,10 @@ export default function LandingPage() {
 
       {/* ── FOOTER ── */}
       <footer
-        className="flex flex-col items-center gap-3 py-8 sm:py-10 px-6 text-center"
+        className="relative z-10 flex flex-col items-center gap-3 py-8 sm:py-10 px-6 text-center"
         style={{ borderTop: "1px solid var(--border-gold)" }}
       >
         <div className="flex items-center gap-3">
-          {/* Small inline candle */}
           <svg width="18" height="36" viewBox="0 0 18 36" fill="none" aria-hidden="true">
             <g className="candle-flame" style={{ transformOrigin: "9px 10px" }}>
               <path
@@ -566,6 +578,9 @@ export default function LandingPage() {
           &copy; {new Date().getFullYear()} Forever Remembered. All rights reserved.
         </p>
       </footer>
+
+      {/* Background music player */}
+      <BackgroundMusic />
     </main>
   );
 }

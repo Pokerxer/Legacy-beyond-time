@@ -3,7 +3,7 @@ import { CLOUDINARY_DEMO } from "@/lib/images"
 
 export const memorial: Memorial = {
   slug: "christiana-opara",
-  fullName: "Chief Christiana O. Opara, JP (Ugochinyere Mbaise)",
+  fullName: "Chief Mrs Ezinne Christiana Opara, JP , Ugochinyere 1 of Oboetiti",
   shortName: "Christiana O. Opara",
   dateOfBirth: "1949-12-12",
   dateOfDeath: "2026-05-07",
@@ -53,7 +53,7 @@ export const memorial: Memorial = {
     },
   ],
   gallery: [
-    { url: "https://res.cloudinary.com/dpydlvp2h/image/upload/v1778345287/forever-memorials/fsb1muhhmtlxp6lzz8ld.jpg", caption: "This iconic picture of Chief Ezinne and her first child/son be place in a vintage position on the web site", type: "photo" },
+    { url: "https://res.cloudinary.com/dpydlvp2h/image/upload/v1778345287/forever-memorials/fsb1muhhmtlxp6lzz8ld.jpg", caption: "Chief Ezinne and her first child/son.", type: "photo" },
     { url: "https://res.cloudinary.com/dpydlvp2h/image/upload/v1778344522/forever-memorials/bvzv9g3q5zbc4r0lkbrb.jpg", caption: "Gallery image 1", type: "photo" },
     { url: "https://res.cloudinary.com/dpydlvp2h/image/upload/v1778344524/forever-memorials/t5ldwimbstbrjezhiark.jpg", caption: "Gallery image 2", type: "photo" },
     { url: "https://res.cloudinary.com/dpydlvp2h/image/upload/v1778344525/forever-memorials/x9uw8oxxnsyvk9vwmx8t.jpg", caption: "Gallery image 3", type: "photo" },
@@ -89,7 +89,7 @@ export const memorial: Memorial = {
   ],
   funeralDetails: null,
   family: [
-    { relation: "Late Husband", name: "Engr. P.J.C. Opara" },
+    // { relation: "Late Husband", name: "Engr. P.J.C. Opara" },
     { relation: "Son", name: "Prof. John Kennedy Ifeanyichukwu Opara" },
     { relation: "Daughter", name: "Barr. Mrs. Chinasa Anyanwu (JP)" },
     { relation: "Son", name: "Dcn. Chibuzo Martin Opara (JP)" },
@@ -125,7 +125,7 @@ export const memorial: Memorial = {
     "Oluchi Awuzie",
   ],
   legacyQuote:
-    "LEGGACY BEYOND TIME; A grand celebration of legacy, love, influence and a life beautifully lived by Chief Christiana O. Opara, JP. (Ugochinyere Mbaise)",
+    "LEGACY BEYOND TIME; A grand celebration of legacy, love, influence and a life beautifully lived by Chief Christiana O. Opara, JP. (Ugochinyere Mbaise)",
   isPublished: true,
 }
 
