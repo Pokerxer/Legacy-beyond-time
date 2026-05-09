@@ -16,7 +16,7 @@ const lato = Lato({
 });
 
 export const metadata: Metadata = {
-  title: "Forever Remembered — Memorial Tribute Website",
+  title: "Legacy Beyond Time — Memorial Tribute Website",
   description:
     "A dignified, elegant memorial website where families can create a tribute page for a deceased loved one.",
 };

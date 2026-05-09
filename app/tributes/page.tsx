@@ -445,7 +445,7 @@ export default function TributesPage() {
         style={{ borderTop: "1px solid var(--border-gold)" }}
       >
         <p className="text-xs" style={{ fontFamily: "var(--font-lato)", color: "var(--text-muted)" }}>
-          &copy; {new Date().getFullYear()} Forever Remembered. All rights reserved.
+          &copy; {new Date().getFullYear()} Legacy Beyond Time. All rights reserved.
         </p>
         <Link href="/" className="text-xs hover:opacity-80 transition-opacity" style={{ color: "var(--accent-gold)", fontFamily: "var(--font-lato)" }}>
           Return to Memorial →

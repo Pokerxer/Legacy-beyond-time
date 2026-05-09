@@ -575,7 +575,7 @@ export default function LandingPage() {
           className="text-xs"
           style={{ fontFamily: "var(--font-lato)", color: "var(--text-muted)" }}
         >
-          &copy; {new Date().getFullYear()} Forever Remembered. All rights reserved.
+          &copy; {new Date().getFullYear()} Legacy Beyond Time. All rights reserved.
         </p>
       </footer>
 
