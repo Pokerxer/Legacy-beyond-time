@@ -18,7 +18,7 @@ const TributeSchema = new Schema<ITribute>(
   {
     memorialId: { type: String, required: true, index: true },
     authorName: { type: String, required: true },
-    authorEmail: { type: String, required: true },
+    authorEmail: { type: String, default: "" },
     authorPhoto: { type: String },
     location: { type: String },
     relationship: { type: String, required: true },
