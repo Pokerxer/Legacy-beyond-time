@@ -7,9 +7,10 @@ import { Heart, Images, ScrollText } from "lucide-react";
 import { memorial } from "@/data/memorial";
 import { fadeUpInView, fadeUp } from "@/components/landing/animations";
 import FlyingAngels from "@/components/landing/FlyingAngels";
-import BackgroundMusic from "@/components/landing/BackgroundMusic";
 import DonationsSection from "@/components/landing/DonationsSection";
 import CondolenceSlider from "@/components/landing/CondolenceSlider";
+import ProgramSection from "@/components/landing/ProgramSection";
+
 
 // --- Candle SVG with flickering flame ---
 function CandleSVG() {
@@ -444,6 +445,11 @@ export default function LandingPage() {
         </motion.div>
       </section>
 
+      {/* ── PROGRAM OF EVENTS ── */}
+      <section className="relative z-10" style={{ borderTop: "1px solid var(--border-gold)" }}>
+        <ProgramSection />
+      </section>
+
       {/* ── DONATIONS ── */}
       <section className="relative z-10" style={{ borderTop: "1px solid var(--border-gold)" }}>
         <DonationsSection />
@@ -579,8 +585,7 @@ export default function LandingPage() {
         </p>
       </footer>
 
-      {/* Background music player */}
-      <BackgroundMusic />
+
     </main>
   );
 }

@@ -1,16 +1,23 @@
 "use client"
 
 import { useRef, useState, useEffect, useCallback } from "react"
-import { Music, Music2, VolumeX } from "lucide-react"
+import { Music, Music2 } from "lucide-react"
 
 export default function BackgroundMusic() {
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const [playing, setPlaying] = useState(false)
+  const [playing, setPlaying] = useState(true)
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  useEffect(() => {
+    if (!mounted || !audioRef.current) return
+    audioRef.current.play().catch(() => {
+      setPlaying(false)
+    })
+  }, [mounted])
 
   const toggle = useCallback(() => {
     if (!audioRef.current) return
@@ -18,9 +25,7 @@ export default function BackgroundMusic() {
       audioRef.current.pause()
       setPlaying(false)
     } else {
-      audioRef.current.play().catch(() => {
-        // autoplay blocked — show toast or just silently fail
-      })
+      audioRef.current.play().catch(() => {})
       setPlaying(true)
     }
   }, [playing])
@@ -29,7 +34,6 @@ export default function BackgroundMusic() {
 
   return (
     <>
-      {/* Hidden audio element */}
       <audio
         ref={audioRef}
         src="/audio/memorial-music.mp3"
@@ -39,7 +43,6 @@ export default function BackgroundMusic() {
         onError={() => setPlaying(false)}
       />
 
-      {/* Floating music toggle button */}
       <button
         onClick={toggle}
         className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2"

@@ -10,6 +10,18 @@ export interface GalleryItem {
   type: "photo" | "video"
 }
 
+export interface GalleryImageDocument {
+  _id: string
+  url: string
+  publicId: string
+  caption: string
+  width?: number
+  height?: number
+  format?: string
+  order: number
+  createdAt: string
+}
+
 export interface FuneralDetails {
   date: string
   time: string
@@ -29,6 +41,7 @@ export interface Tribute {
   authorName: string
   authorEmail: string
   authorPhoto?: string
+  location?: string
   relationship: string
   message: string
   whatTheyMiss: string

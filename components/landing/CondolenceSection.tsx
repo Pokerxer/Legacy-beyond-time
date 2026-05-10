@@ -1,62 +1,91 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { MessageSquareHeart, Send, ChevronDown, Quote } from "lucide-react"
+import { MessageSquareHeart, Send, ChevronDown, Quote, Loader2 } from "lucide-react"
 import Button from "@/components/ui/Button"
 import Toast from "@/components/ui/Toast"
 import { fadeUpInView } from "./animations"
+
 interface Condolence {
-  id: string
+  _id: string
   name: string
   location: string
   message: string
   date: string
 }
 
-const condolences: Condolence[] = [
-  {
-    id: "1",
-    name: "Rev. Fr. Michael Okafor",
-    location: "Mbaise, Imo State",
-    message:
-      "Mama Christiana was a pillar of our parish. Her faith, generosity, and motherly heart touched everyone who knew her. May her soul rest in perfect peace.",
-    date: "2026-05-10",
-  },
-  {
-    id: "2",
-    name: "CWO Mbaise Diocese",
-    location: "Mbaise, Imo State",
-    message:
-      "Our beloved mother and leader. You fought the good fight, you kept the faith. Heaven has gained a worthy angel. We will miss you dearly.",
-    date: "2026-05-11",
-  },
-  {
-    id: "3",
-    name: "Dr. & Mrs. Okonkwo",
-    location: "Owerri, Imo State",
-    message:
-      "Mama's impact on our community is immeasurable. She was a true mother to all. We pray that God grants her eternal rest and grants the family the strength to bear this loss.",
-    date: "2026-05-12",
-  },
-]
-
 export default function CondolenceSection() {
+  const [condolences, setCondolences] = useState<Condolence[]>([])
+  const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState<string | null>(null)
   const [allVisible, setAllVisible] = useState(false)
   const [toastVisible, setToastVisible] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+
+  const fetchCondolences = useCallback(async () => {
+    try {
+      const res = await fetch("/api/tributes")
+      if (res.ok) {
+        const data = await res.json()
+        const approved = data
+          .filter((t: { isApproved: boolean }) => t.isApproved)
+          .map((t: { _id: string; authorName: string; authorEmail?: string; location?: string; message: string; createdAt: string }) => ({
+            _id: t._id,
+            name: t.authorName,
+            location: t.location || "",
+            message: t.message,
+            date: new Date(t.createdAt).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }),
+          }))
+        setCondolences(approved)
+      }
+    } catch {
+      // silent
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchCondolences()
+  }, [fetchCondolences])
 
   const displayed = allVisible ? condolences : condolences.slice(0, 2)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
-    await new Promise((r) => setTimeout(r, 1000))
-    setSubmitting(false)
-    setToastVisible(true)
+
     const form = e.target as HTMLFormElement
-    form.reset()
+    const formData = new FormData(form)
+
+    try {
+      const res = await fetch("/api/tributes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          authorName: formData.get("name"),
+          location: formData.get("location"),
+          message: formData.get("message"),
+          relationship: "Condolence",
+          memorialId: "christiana-opara",
+        }),
+      })
+
+      if (res.ok) {
+        setToastVisible(true)
+        form.reset()
+        fetchCondolences()
+      }
+    } catch {
+      // silent
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -108,6 +137,7 @@ export default function CondolenceSection() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <input
                 type="text"
+                name="name"
                 placeholder="Your Name"
                 required
                 className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-colors focus:ring-2"
@@ -120,6 +150,7 @@ export default function CondolenceSection() {
               />
               <input
                 type="text"
+                name="location"
                 placeholder="Your Location"
                 required
                 className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-colors focus:ring-2"
@@ -132,6 +163,7 @@ export default function CondolenceSection() {
               />
             </div>
             <textarea
+              name="message"
               rows={4}
               placeholder="Write your condolence message..."
               required
@@ -146,7 +178,7 @@ export default function CondolenceSection() {
             <div className="flex justify-end">
               <Button type="submit" variant="primary" disabled={submitting}>
                 {submitting ? (
-                  <><span className="animate-spin">&#9696;</span> Sending...</>
+                  <><Loader2 size={16} className="animate-spin" /> Sending...</>
                 ) : (
                   <><Send size={16} /> Send Condolence</>
                 )}
@@ -156,110 +188,122 @@ export default function CondolenceSection() {
         </motion.div>
 
         {/* Condolence Messages */}
-        <div className="space-y-4">
-          <AnimatePresence>
-            {displayed.map((c) => (
-              <motion.article
-                key={c.id}
-                layout
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4 }}
-                className="rounded-2xl overflow-hidden"
-                style={{
-                  background: "var(--card-bg)",
-                  border: "1px solid var(--border-gold)",
-                }}
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <Loader2 size={24} className="animate-spin" style={{ color: "var(--accent-gold)" }} />
+          </div>
+        ) : condolences.length === 0 ? (
+          <p className="text-sm text-center py-12" style={{ color: "var(--text-muted)" }}>
+            No condolences yet. Be the first to leave one.
+          </p>
+        ) : (
+          <div className="space-y-4">
+            <AnimatePresence>
+              {displayed.map((c) => (
+                <motion.article
+                  key={c._id}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4 }}
+                  className="rounded-2xl overflow-hidden"
+                  style={{
+                    background: "var(--card-bg)",
+                    border: "1px solid var(--border-gold)",
+                  }}
+                >
+                  <button
+                    onClick={() => setExpanded(expanded === c._id ? null : c._id)}
+                    className="w-full flex items-start gap-4 p-5 text-left"
+                  >
+                    <div
+                      className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
+                      style={{ background: "rgba(201,168,76,0.12)" }}
+                    >
+                      <Quote size={16} style={{ color: "var(--accent-gold)" }} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <div>
+                          <span
+                            className="text-sm font-semibold"
+                            style={{ fontFamily: "var(--font-playfair)", color: "var(--text-primary)" }}
+                          >
+                            {c.name}
+                          </span>
+                          {c.location && (
+                            <span
+                              className="text-xs ml-2"
+                              style={{ color: "var(--text-muted)" }}
+                            >
+                              {c.location}
+                            </span>
+                          )}
+                        </div>
+                        <ChevronDown
+                          size={16}
+                          className="shrink-0 transition-transform duration-300"
+                          style={{
+                            color: "var(--text-muted)",
+                            transform: expanded === c._id ? "rotate(180deg)" : "rotate(0deg)",
+                          }}
+                        />
+                      </div>
+                      <p
+                        className="text-xs mt-1"
+                        style={{ color: "var(--text-muted)" }}
+                      >
+                        {c.date}
+                      </p>
+                      <AnimatePresence>
+                        {expanded === c._id && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className="overflow-hidden"
+                          >
+                            <p
+                              className="text-sm leading-relaxed mt-3"
+                              style={{ color: "var(--text-primary)", fontFamily: "var(--font-lato)" }}
+                            >
+                              {c.message}
+                            </p>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </button>
+                </motion.article>
+              ))}
+            </AnimatePresence>
+
+            {condolences.length > 2 && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center pt-2"
               >
                 <button
-                  onClick={() => setExpanded(expanded === c.id ? null : c.id)}
-                  className="w-full flex items-start gap-4 p-5 text-left"
+                  onClick={() => setAllVisible(!allVisible)}
+                  className="inline-flex items-center gap-2 text-sm font-medium transition-colors hover:opacity-80"
+                  style={{ color: "var(--accent-gold)", fontFamily: "var(--font-lato)" }}
                 >
-                  <div
-                    className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
-                    style={{ background: "rgba(201,168,76,0.12)" }}
-                  >
-                    <Quote size={16} style={{ color: "var(--accent-gold)" }} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <div>
-                        <span
-                          className="text-sm font-semibold"
-                          style={{ fontFamily: "var(--font-playfair)", color: "var(--text-primary)" }}
-                        >
-                          {c.name}
-                        </span>
-                        <span
-                          className="text-xs ml-2"
-                          style={{ color: "var(--text-muted)" }}
-                        >
-                          {c.location}
-                        </span>
-                      </div>
-                      <ChevronDown
-                        size={16}
-                        className="shrink-0 transition-transform duration-300"
-                        style={{
-                          color: "var(--text-muted)",
-                          transform: expanded === c.id ? "rotate(180deg)" : "rotate(0deg)",
-                        }}
-                      />
-                    </div>
-                    <p
-                      className="text-xs mt-1"
-                      style={{ color: "var(--text-muted)" }}
-                    >
-                      {c.date}
-                    </p>
-                    <AnimatePresence>
-                      {expanded === c.id && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.3 }}
-                          className="overflow-hidden"
-                        >
-                          <p
-                            className="text-sm leading-relaxed mt-3"
-                            style={{ color: "var(--text-primary)", fontFamily: "var(--font-lato)" }}
-                          >
-                            {c.message}
-                          </p>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
+                  {allVisible ? "Show Less" : `View All ${condolences.length} Condolences`}
+                  <ChevronDown
+                    size={14}
+                    style={{
+                      transform: allVisible ? "rotate(180deg)" : "rotate(0deg)",
+                      transition: "transform 0.3s",
+                    }}
+                  />
                 </button>
-              </motion.article>
-            ))}
-          </AnimatePresence>
-
-          {condolences.length > 2 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center pt-2"
-            >
-              <button
-                onClick={() => setAllVisible(!allVisible)}
-                className="inline-flex items-center gap-2 text-sm font-medium transition-colors hover:opacity-80"
-                style={{ color: "var(--accent-gold)", fontFamily: "var(--font-lato)" }}
-              >
-                {allVisible ? "Show Less" : `View All ${condolences.length} Condolences`}
-                <ChevronDown
-                  size={14}
-                  style={{
-                    transform: allVisible ? "rotate(180deg)" : "rotate(0deg)",
-                    transition: "transform 0.3s",
-                  }}
-                />
-              </button>
-            </motion.div>
-          )}
-        </div>
+              </motion.div>
+            )}
+          </div>
+        )}
       </div>
 
       <Toast

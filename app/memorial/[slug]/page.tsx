@@ -3,12 +3,14 @@
 import { useState, useEffect, useRef } from "react"
 import { use } from "react"
 import { motion } from "framer-motion"
-import { memorial, sampleTributes } from "@/data/memorial"
+import { memorial } from "@/data/memorial"
+import type { Tribute } from "@/types"
 import HeroSection from "@/components/memorial/HeroSection"
 import NavigationTabs from "@/components/memorial/NavigationTabs"
 import BiographySection from "@/components/memorial/BiographySection"
 import LegacyBanner from "@/components/memorial/LegacyBanner"
-import GalleryGrid from "@/components/memorial/GalleryGrid"
+import RemembranceSlideshow from "@/components/landing/RemembranceSlideshow"
+import BackgroundMusic from "@/components/landing/BackgroundMusic"
 import AchievementsTimeline from "@/components/memorial/AchievementsTimeline"
 import FamilySection from "@/components/memorial/FamilySection"
 import TributesWall from "@/components/memorial/TributesWall"
@@ -36,9 +38,21 @@ export default function MemorialPage({
   const { slug } = use(params)
   const [activeTab, setActiveTab] = useState<TabId>("Overview")
   const [tributeModalOpen, setTributeModalOpen] = useState(false)
+  const [tributes, setTributes] = useState<Tribute[]>([])
   const observerRef = useRef<IntersectionObserver | null>(null)
 
   const data = memorial
+
+  const fetchTributes = () => {
+    fetch("/api/tributes")
+      .then((res) => res.json())
+      .then((data) => setTributes(data))
+      .catch(() => {})
+  }
+
+  useEffect(() => {
+    fetchTributes()
+  }, [])
 
   // IntersectionObserver to auto-highlight active tab on scroll
   useEffect(() => {
@@ -110,7 +124,9 @@ export default function MemorialPage({
 
       <SectionDivider />
 
-      <GalleryGrid items={data.gallery} />
+      <section id="gallery">
+        <RemembranceSlideshow />
+      </section>
 
       <AchievementsTimeline achievements={data.achievements} />
 
@@ -118,13 +134,15 @@ export default function MemorialPage({
 
       <FamilySection family={data.family} grandchildren={data.grandchildren} />
 
-      <TributesWall tributes={sampleTributes} onOpenModal={() => setTributeModalOpen(true)} />
+      <TributesWall tributes={tributes} onOpenModal={() => setTributeModalOpen(true)} />
 
       <section id="funeral">
         <FuneralInfo details={data.funeralDetails} />
       </section>
 
-      <TributeModal open={tributeModalOpen} onClose={() => setTributeModalOpen(false)} />
+      <TributeModal open={tributeModalOpen} onClose={() => setTributeModalOpen(false)} onSuccess={fetchTributes} />
+
+      <BackgroundMusic />
 
       {/* Footer */}
       <footer

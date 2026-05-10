@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { motion } from "framer-motion"
 import { Send } from "lucide-react"
 import Button from "@/components/ui/Button"
@@ -9,6 +9,7 @@ import Toast from "@/components/ui/Toast"
 interface TributeModalProps {
   open: boolean
   onClose: () => void
+  onSuccess?: () => void
 }
 
 const RELATIONSHIPS = [
@@ -23,20 +24,49 @@ const RELATIONSHIPS = [
   "Other",
 ]
 
-export default function TributeModal({ open, onClose }: TributeModalProps) {
+export default function TributeModal({ open, onClose, onSuccess }: TributeModalProps) {
   const [toastVisible, setToastVisible] = useState(false)
+  const [toastMessage, setToastMessage] = useState("")
   const [submitting, setSubmitting] = useState(false)
+  const formRef = useRef<HTMLFormElement>(null)
 
   if (!open) return null
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
-    // Simulate submission
-    await new Promise((r) => setTimeout(r, 1000))
-    setSubmitting(false)
-    setToastVisible(true)
-    onClose()
+
+    const form = formRef.current!
+    const data = {
+      authorName: (form.elements.namedItem("name") as HTMLInputElement).value,
+      authorEmail: (form.elements.namedItem("email") as HTMLInputElement).value,
+      relationship: (form.elements.namedItem("relationship") as HTMLSelectElement).value,
+      impact: (form.elements.namedItem("impact") as HTMLTextAreaElement).value,
+      whatTheyMiss: (form.elements.namedItem("miss") as HTMLTextAreaElement).value,
+      message: (form.elements.namedItem("message") as HTMLTextAreaElement).value,
+    }
+
+    try {
+      const res = await fetch("/api/tributes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      })
+
+      if (res.ok) {
+        setToastMessage("Your tribute has been submitted and will be reviewed before appearing.")
+        form.reset()
+        onClose()
+        onSuccess?.()
+      } else {
+        setToastMessage("Something went wrong. Please try again.")
+      }
+    } catch {
+      setToastMessage("Something went wrong. Please try again.")
+    } finally {
+      setSubmitting(false)
+      setToastVisible(true)
+    }
   }
 
   return (
@@ -71,18 +101,19 @@ export default function TributeModal({ open, onClose }: TributeModalProps) {
             Leave a Tribute
           </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Field label="Your Name" required>
-                <Input placeholder="e.g. John Doe" />
+                <Input name="name" placeholder="e.g. John Doe" required />
               </Field>
               <Field label="Your Email" required>
-                <Input type="email" placeholder="e.g. john@example.com" />
+                <Input name="email" type="email" placeholder="e.g. john@example.com" required />
               </Field>
             </div>
 
             <Field label="Relationship" required>
               <select
+                name="relationship"
                 className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-colors focus:ring-2"
                 style={{
                   background: "var(--card-bg)",
@@ -103,6 +134,7 @@ export default function TributeModal({ open, onClose }: TributeModalProps) {
 
             <Field label="How did they impact your life?">
               <textarea
+                name="impact"
                 rows={3}
                 className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-colors focus:ring-2 resize-none"
                 style={{
@@ -117,6 +149,7 @@ export default function TributeModal({ open, onClose }: TributeModalProps) {
 
             <Field label="What will you miss most?">
               <textarea
+                name="miss"
                 rows={2}
                 className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-colors focus:ring-2 resize-none"
                 style={{
@@ -131,6 +164,7 @@ export default function TributeModal({ open, onClose }: TributeModalProps) {
 
             <Field label="Your Message" required>
               <textarea
+                name="message"
                 rows={4}
                 className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-colors focus:ring-2 resize-none"
                 style={{
@@ -167,7 +201,7 @@ export default function TributeModal({ open, onClose }: TributeModalProps) {
       </motion.div>
 
       <Toast
-        message="Your tribute has been submitted and will be reviewed before appearing."
+        message={toastMessage}
         visible={toastVisible}
         onClose={() => setToastVisible(false)}
       />
@@ -190,11 +224,9 @@ function Field({ label, required, children }: { label: string; required?: boolea
   )
 }
 
-function Input({ type = "text", placeholder, ...props }: React.InputHTMLAttributes<HTMLInputElement>) {
+function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
-      type={type}
-      placeholder={placeholder}
       className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-colors focus:ring-2"
       style={{
         background: "var(--card-bg)",
