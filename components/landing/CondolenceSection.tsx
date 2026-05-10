@@ -29,7 +29,7 @@ export default function CondolenceSection() {
       if (res.ok) {
         const data = await res.json()
         const approved = data
-          .filter((t: { isApproved: boolean }) => t.isApproved)
+          .filter((t: { isApproved: boolean; relationship: string }) => t.isApproved && t.relationship === "Condolence")
           .map((t: { _id: string; authorName: string; authorEmail?: string; location?: string; message: string; createdAt: string }) => ({
             _id: t._id,
             name: t.authorName,
