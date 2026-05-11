@@ -3,7 +3,7 @@
 import { useSession, signOut } from "next-auth/react"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
-import { LayoutDashboard, MessageSquareHeart, Heart, Image as ImageIcon, LogOut, Menu, X } from "lucide-react"
+import { LayoutDashboard, MessageSquareHeart, Heart, Image as ImageIcon, HandHeart, LogOut, Menu, X } from "lucide-react"
 import { SessionProvider } from "next-auth/react"
 import { useState, useEffect } from "react"
 
@@ -12,6 +12,7 @@ const navItems = [
   { href: "/admin/tributes", label: "Tributes", icon: MessageSquareHeart },
   { href: "/admin/condolence", label: "Condolence", icon: Heart },
   { href: "/admin/gallery", label: "Gallery", icon: ImageIcon },
+  { href: "/admin/donations", label: "Donations", icon: HandHeart },
 ]
 
 function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => void }) {

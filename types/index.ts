@@ -50,6 +50,31 @@ export interface Tribute {
   createdAt: string
 }
 
+export interface DonationInfo {
+  _id: string
+  bankName: string
+  accountName: string
+  accountNumber: string
+  sortCode: string
+  bankName2?: string
+  accountName2?: string
+  accountNumber2?: string
+  sortCode2?: string
+  usdInstructions?: string
+  additionalInfo?: string
+}
+
+export interface DonationRecord {
+  _id: string
+  donorName: string
+  donorEmail: string
+  amount: string
+  currency: string
+  message?: string
+  isAnonymous: boolean
+  createdAt: string
+}
+
 export interface Memorial {
   slug: string
   fullName: string
