@@ -2,23 +2,18 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { HandHeart, Pencil, X, Check, Loader2, Banknote, Eye, EyeOff } from "lucide-react"
-import type { DonationInfo } from "@/types"
+import { HandHeart, Pencil, X, Check, Loader2, Banknote, Trash2 } from "lucide-react"
+import type { DonationInfo, DonationRecord } from "@/types"
 
 export default function AdminDonations() {
   const [info, setInfo] = useState<DonationInfo | null>(null)
+  const [records, setRecords] = useState<DonationRecord[]>([])
+  const [loadingRecords, setLoadingRecords] = useState(true)
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState({
-    bankName: "",
-    accountName: "",
-    accountNumber: "",
-    sortCode: "",
-    bankName2: "",
-    accountName2: "",
-    accountNumber2: "",
-    sortCode2: "",
-    usdInstructions: "",
-    additionalInfo: "",
+    bankName: "", accountName: "", accountNumber: "", sortCode: "",
+    bankName2: "", accountName2: "", accountNumber2: "", sortCode2: "",
+    usdInstructions: "", additionalInfo: "",
   })
   const [saving, setSaving] = useState(false)
 
@@ -41,6 +36,12 @@ export default function AdminDonations() {
         })
       })
       .catch(() => {})
+
+    fetch("/api/donations")
+      .then((r) => r.json())
+      .then((data) => setRecords(data))
+      .catch(() => {})
+      .finally(() => setLoadingRecords(false))
   }, [])
 
   const handleSave = async () => {
@@ -63,8 +64,18 @@ export default function AdminDonations() {
     }
   }
 
+  const deleteRecord = async (id: string) => {
+    if (!confirm("Delete this donation record?")) return
+    try {
+      const res = await fetch(`/api/donations/${id}`, { method: "DELETE" })
+      if (res.ok) setRecords((prev) => prev.filter((r) => r._id !== id))
+    } catch {
+      // silent
+    }
+  }
+
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-4xl mx-auto">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -98,7 +109,7 @@ export default function AdminDonations() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl p-6 mb-6"
+        className="rounded-2xl p-6 mb-8"
         style={{ background: "var(--card-bg)", border: "1px solid var(--border-gold)" }}
       >
         <h2
@@ -110,117 +121,37 @@ export default function AdminDonations() {
         </h2>
 
         {editing ? (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault()
-              handleSave()
-            }}
-            className="space-y-4"
-          >
+          <form onSubmit={(e) => { e.preventDefault(); handleSave() }} className="space-y-4">
             <Field label="Bank Name">
-              <input
-                value={form.bankName}
-                onChange={(e) => setForm({ ...form, bankName: e.target.value })}
-                className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2"
-                style={{ background: "var(--bg-primary)", border: "1px solid var(--border-gold)", color: "var(--text-primary)" }}
-                required
-              />
+              <input value={form.bankName} onChange={(e) => setForm({ ...form, bankName: e.target.value })} className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2" style={{ background: "var(--bg-primary)", border: "1px solid var(--border-gold)", color: "var(--text-primary)" }} required />
             </Field>
             <Field label="Account Name">
-              <input
-                value={form.accountName}
-                onChange={(e) => setForm({ ...form, accountName: e.target.value })}
-                className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2"
-                style={{ background: "var(--bg-primary)", border: "1px solid var(--border-gold)", color: "var(--text-primary)" }}
-                required
-              />
+              <input value={form.accountName} onChange={(e) => setForm({ ...form, accountName: e.target.value })} className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2" style={{ background: "var(--bg-primary)", border: "1px solid var(--border-gold)", color: "var(--text-primary)" }} required />
             </Field>
             <div className="grid grid-cols-2 gap-4">
               <Field label="Account Number">
-                <input
-                  value={form.accountNumber}
-                  onChange={(e) => setForm({ ...form, accountNumber: e.target.value })}
-                  className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2"
-                  style={{ background: "var(--bg-primary)", border: "1px solid var(--border-gold)", color: "var(--text-primary)" }}
-                  required
-                />
+                <input value={form.accountNumber} onChange={(e) => setForm({ ...form, accountNumber: e.target.value })} className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2" style={{ background: "var(--bg-primary)", border: "1px solid var(--border-gold)", color: "var(--text-primary)" }} required />
               </Field>
               <Field label="Sort Code">
-                <input
-                  value={form.sortCode}
-                  onChange={(e) => setForm({ ...form, sortCode: e.target.value })}
-                  className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2"
-                  style={{ background: "var(--bg-primary)", border: "1px solid var(--border-gold)", color: "var(--text-primary)" }}
-                />
+                <input value={form.sortCode} onChange={(e) => setForm({ ...form, sortCode: e.target.value })} className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2" style={{ background: "var(--bg-primary)", border: "1px solid var(--border-gold)", color: "var(--text-primary)" }} />
               </Field>
             </div>
-
             <div className="pt-2" style={{ borderTop: "1px solid var(--border-gold)" }}>
-              <p className="text-xs font-semibold mb-3" style={{ color: "var(--text-muted)" }}>
-                Secondary Bank (Optional)
-              </p>
-              <Field label="Bank Name">
-                <input
-                  value={form.bankName2}
-                  onChange={(e) => setForm({ ...form, bankName2: e.target.value })}
-                  className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2"
-                  style={{ background: "var(--bg-primary)", border: "1px solid var(--border-gold)", color: "var(--text-primary)" }}
-                />
-              </Field>
-              <Field label="Account Name">
-                <input
-                  value={form.accountName2}
-                  onChange={(e) => setForm({ ...form, accountName2: e.target.value })}
-                  className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2"
-                  style={{ background: "var(--bg-primary)", border: "1px solid var(--border-gold)", color: "var(--text-primary)" }}
-                />
-              </Field>
+              <p className="text-xs font-semibold mb-3" style={{ color: "var(--text-muted)" }}>Secondary Bank (Optional)</p>
+              <Field label="Bank Name"><input value={form.bankName2} onChange={(e) => setForm({ ...form, bankName2: e.target.value })} className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2" style={{ background: "var(--bg-primary)", border: "1px solid var(--border-gold)", color: "var(--text-primary)" }} /></Field>
+              <Field label="Account Name"><input value={form.accountName2} onChange={(e) => setForm({ ...form, accountName2: e.target.value })} className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2" style={{ background: "var(--bg-primary)", border: "1px solid var(--border-gold)", color: "var(--text-primary)" }} /></Field>
               <div className="grid grid-cols-2 gap-4">
-                <Field label="Account Number">
-                  <input
-                    value={form.accountNumber2}
-                    onChange={(e) => setForm({ ...form, accountNumber2: e.target.value })}
-                    className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2"
-                    style={{ background: "var(--bg-primary)", border: "1px solid var(--border-gold)", color: "var(--text-primary)" }}
-                  />
-                </Field>
-                <Field label="Sort Code">
-                  <input
-                    value={form.sortCode2}
-                    onChange={(e) => setForm({ ...form, sortCode2: e.target.value })}
-                    className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2"
-                    style={{ background: "var(--bg-primary)", border: "1px solid var(--border-gold)", color: "var(--text-primary)" }}
-                  />
-                </Field>
+                <Field label="Account Number"><input value={form.accountNumber2} onChange={(e) => setForm({ ...form, accountNumber2: e.target.value })} className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2" style={{ background: "var(--bg-primary)", border: "1px solid var(--border-gold)", color: "var(--text-primary)" }} /></Field>
+                <Field label="Sort Code"><input value={form.sortCode2} onChange={(e) => setForm({ ...form, sortCode2: e.target.value })} className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2" style={{ background: "var(--bg-primary)", border: "1px solid var(--border-gold)", color: "var(--text-primary)" }} /></Field>
               </div>
             </div>
-
             <Field label="USD / Foreign Transfer Instructions">
-              <textarea
-                value={form.usdInstructions}
-                onChange={(e) => setForm({ ...form, usdInstructions: e.target.value })}
-                rows={3}
-                className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 resize-none"
-                style={{ background: "var(--bg-primary)", border: "1px solid var(--border-gold)", color: "var(--text-primary)" }}
-              />
+              <textarea value={form.usdInstructions} onChange={(e) => setForm({ ...form, usdInstructions: e.target.value })} rows={3} className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 resize-none" style={{ background: "var(--bg-primary)", border: "1px solid var(--border-gold)", color: "var(--text-primary)" }} />
             </Field>
-
             <Field label="Additional Info">
-              <textarea
-                value={form.additionalInfo}
-                onChange={(e) => setForm({ ...form, additionalInfo: e.target.value })}
-                rows={2}
-                className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 resize-none"
-                style={{ background: "var(--bg-primary)", border: "1px solid var(--border-gold)", color: "var(--text-primary)" }}
-              />
+              <textarea value={form.additionalInfo} onChange={(e) => setForm({ ...form, additionalInfo: e.target.value })} rows={2} className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 resize-none" style={{ background: "var(--bg-primary)", border: "1px solid var(--border-gold)", color: "var(--text-primary)" }} />
             </Field>
-
-            <button
-              type="submit"
-              disabled={saving}
-              className="rounded-xl px-5 py-2.5 text-sm font-semibold transition-all hover:opacity-90 disabled:opacity-50 flex items-center gap-2"
-              style={{ background: "linear-gradient(135deg, #c9a84c, #e8c96a)", color: "#1a1a2e" }}
-            >
+            <button type="submit" disabled={saving} className="rounded-xl px-5 py-2.5 text-sm font-semibold transition-all hover:opacity-90 disabled:opacity-50 flex items-center gap-2" style={{ background: "linear-gradient(135deg, #c9a84c, #e8c96a)", color: "#1a1a2e" }}>
               {saving ? <><Loader2 size={16} className="animate-spin" /> Saving...</> : <><Check size={16} /> Save Changes</>}
             </button>
           </form>
@@ -235,17 +166,13 @@ export default function AdminDonations() {
             {info.accountNumber2 && <Row label="Account Number (2)" value={info.accountNumber2} mono />}
             {info.usdInstructions && (
               <div className="pt-2">
-                <p className="text-xs font-semibold mb-1" style={{ color: "var(--text-muted)" }}>
-                  USD / Foreign Transfer Instructions
-                </p>
+                <p className="text-xs font-semibold mb-1" style={{ color: "var(--text-muted)" }}>USD / Foreign Transfer Instructions</p>
                 <p className="text-sm" style={{ color: "var(--text-primary)" }}>{info.usdInstructions}</p>
               </div>
             )}
             {info.additionalInfo && (
               <div className="pt-2">
-                <p className="text-xs font-semibold mb-1" style={{ color: "var(--text-muted)" }}>
-                  Additional Info
-                </p>
+                <p className="text-xs font-semibold mb-1" style={{ color: "var(--text-muted)" }}>Additional Info</p>
                 <p className="text-sm" style={{ color: "var(--text-primary)" }}>{info.additionalInfo}</p>
               </div>
             )}
@@ -255,7 +182,7 @@ export default function AdminDonations() {
         )}
       </motion.div>
 
-      {/* Note about the donation form */}
+      {/* Donation Records */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -264,15 +191,71 @@ export default function AdminDonations() {
         style={{ background: "var(--card-bg)", border: "1px solid var(--border-gold)" }}
       >
         <h2
-          className="text-lg font-semibold mb-2 flex items-center gap-2"
+          className="text-lg font-semibold mb-4 flex items-center gap-2"
           style={{ fontFamily: "var(--font-playfair)", color: "var(--text-primary)" }}
         >
           <HandHeart size={18} style={{ color: "var(--accent-gold)" }} />
-          Donation Form
+          Donation Records ({records.length})
         </h2>
-        <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-          Visitors can submit donation records through the memorial site. Donation records are stored here.
-        </p>
+
+        {loadingRecords ? (
+          <div className="flex justify-center py-10">
+            <Loader2 size={24} className="animate-spin" style={{ color: "var(--accent-gold)" }} />
+          </div>
+        ) : records.length === 0 ? (
+          <p className="text-sm py-8 text-center" style={{ color: "var(--text-muted)" }}>
+            No donation records yet. They will appear here when visitors submit the form.
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {records.map((r, i) => (
+              <motion.div
+                key={r._id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.03 }}
+                className="rounded-xl p-4"
+                style={{ background: "var(--bg-primary)", border: "1px solid var(--border-gold)" }}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+                        {r.isAnonymous ? "Anonymous" : r.donorName}
+                      </span>
+                      {r.amount && (
+                        <span className="text-sm font-mono font-bold" style={{ color: "var(--accent-gold)" }}>
+                          {r.amount}
+                        </span>
+                      )}
+                    </div>
+                    {r.message && (
+                      <p className="text-sm leading-relaxed mt-0.5" style={{ color: "var(--text-muted)" }}>
+                        {r.message}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-3 mt-1.5">
+                      {r.donorEmail && (
+                        <span className="text-xs" style={{ color: "var(--text-muted)" }}>{r.donorEmail}</span>
+                      )}
+                      <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+                        {new Date(r.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => deleteRecord(r._id)}
+                    className="p-1.5 rounded-lg transition-colors hover:opacity-80 shrink-0"
+                    style={{ color: "#ff6b6b" }}
+                    aria-label="Delete record"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </motion.div>
     </div>
   )
