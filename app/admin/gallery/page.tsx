@@ -17,6 +17,7 @@ export default function AdminGallery() {
   const [saving, setSaving] = useState<string | null>(null)
   const [deleting, setDeleting] = useState<string | null>(null)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  const [captionText, setCaptionText] = useState("")
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const fetchImages = useCallback(async () => {
@@ -58,9 +59,7 @@ export default function AdminGallery() {
     setUploadResults([])
     setMessage("")
 
-    const form = e.currentTarget
-    const formData = new FormData(form)
-    const caption = (formData.get("caption") as string) || ""
+    const caption = captionText
 
     const results: { name: string; status: "ok" | "fail" }[] = []
     let completed = 0
@@ -97,6 +96,7 @@ export default function AdminGallery() {
 
     setUploading(false)
     setSelectedFiles([])
+    setCaptionText("")
     setUploadProgress({ current: 0, total: 0 })
     if (fileInputRef.current) fileInputRef.current.value = ""
     fetchImages()
@@ -104,7 +104,7 @@ export default function AdminGallery() {
 
   const startEdit = (img: GalleryImageDocument) => {
     setEditingId(img._id)
-    setEditCaption(img.caption)
+    setEditCaption(img.caption || "")
   }
 
   const cancelEdit = () => {
@@ -266,6 +266,8 @@ export default function AdminGallery() {
             <input
               type="text"
               name="caption"
+              value={captionText}
+              onChange={(e) => setCaptionText(e.target.value)}
               placeholder="e.g. Mama at her 70th birthday celebration"
               className="w-full rounded-xl px-4 py-3 text-sm outline-none focus:ring-2"
               style={{
