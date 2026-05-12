@@ -1,19 +1,23 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Upload, ImageIcon, Trash2, Check, X, Pencil, Loader2 } from "lucide-react"
+import { Upload, ImageIcon, Trash2, Check, X, Pencil, Loader2, FileImage } from "lucide-react"
 import type { GalleryImageDocument } from "@/types"
 
 export default function AdminGallery() {
   const [images, setImages] = useState<GalleryImageDocument[]>([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 })
+  const [uploadResults, setUploadResults] = useState<{ name: string; status: "ok" | "fail" }[]>([])
   const [message, setMessage] = useState("")
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editCaption, setEditCaption] = useState("")
   const [saving, setSaving] = useState<string | null>(null)
   const [deleting, setDeleting] = useState<string | null>(null)
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const fetchImages = useCallback(async () => {
     try {
@@ -33,30 +37,69 @@ export default function AdminGallery() {
     fetchImages()
   }, [fetchImages])
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (files) {
+      setSelectedFiles(Array.from(files))
+      setUploadResults([])
+      setMessage("")
+    }
+  }
+
+  const removeFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index))
+  }
+
   const handleUpload = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    if (selectedFiles.length === 0) return
+
     setUploading(true)
+    setUploadResults([])
     setMessage("")
 
-    const formData = new FormData(e.currentTarget)
-    try {
-      const res = await fetch("/api/gallery/upload", {
-        method: "POST",
-        body: formData,
-      })
-      if (res.ok) {
-        setMessage("Uploaded successfully!")
-        e.currentTarget.reset()
-        fetchImages()
-      } else {
-        const err = await res.json()
-        setMessage(err.error || "Upload failed.")
+    const form = e.currentTarget
+    const formData = new FormData(form)
+    const caption = (formData.get("caption") as string) || ""
+
+    const results: { name: string; status: "ok" | "fail" }[] = []
+    let completed = 0
+
+    for (const file of selectedFiles) {
+      setUploadProgress({ current: completed + 1, total: selectedFiles.length })
+
+      const fd = new FormData()
+      fd.append("file", file)
+      fd.append("caption", caption)
+
+      try {
+        const res = await fetch("/api/gallery/upload", {
+          method: "POST",
+          body: fd,
+        })
+        results.push({ name: file.name, status: res.ok ? "ok" : "fail" })
+      } catch {
+        results.push({ name: file.name, status: "fail" })
       }
-    } catch {
-      setMessage("Upload failed.")
-    } finally {
-      setUploading(false)
+
+      completed++
+      setUploadResults([...results])
     }
+
+    const successCount = results.filter((r) => r.status === "ok").length
+    const failCount = results.filter((r) => r.status === "fail").length
+
+    if (failCount === 0) {
+      setMessage(`All ${successCount} image${successCount > 1 ? "s" : ""} uploaded successfully!`)
+    } else {
+      setMessage(`${successCount} uploaded, ${failCount} failed.`)
+    }
+
+    setUploading(false)
+    setSelectedFiles([])
+    setUploadProgress({ current: 0, total: 0 })
+    if (fileInputRef.current) fileInputRef.current.value = ""
+    fetchImages()
   }
 
   const startEdit = (img: GalleryImageDocument) => {
@@ -137,25 +180,88 @@ export default function AdminGallery() {
           style={{ fontFamily: "var(--font-playfair)", color: "var(--text-primary)" }}
         >
           <Upload size={18} style={{ color: "var(--accent-gold)" }} />
-          Upload Image
+          Upload Images
         </h2>
         <form onSubmit={handleUpload} className="space-y-4">
           <div>
             <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-muted)" }}>
-              Image File
+              Select Images
             </label>
             <input
+              ref={fileInputRef}
               type="file"
               name="file"
               accept="image/*"
-              required
+              multiple
+              onChange={handleFileChange}
               className="w-full text-sm"
               style={{ color: "var(--text-primary)" }}
             />
           </div>
+
+          {/* Selected file list */}
+          {selectedFiles.length > 0 && (
+            <div className="rounded-xl p-3 space-y-1.5" style={{ background: "var(--bg-primary)" }}>
+              <p className="text-xs font-medium mb-2" style={{ color: "var(--text-muted)" }}>
+                {selectedFiles.length} file{selectedFiles.length > 1 ? "s" : ""} selected
+              </p>
+              {selectedFiles.map((file, i) => {
+                const result = uploadResults[i]
+                const isUploaded = result?.status === "ok"
+                const isFailed = result?.status === "fail"
+                return (
+                  <div key={i} className="flex items-center justify-between gap-2 text-xs">
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      <FileImage size={14} className="shrink-0" style={{ color: "var(--accent-gold)" }} />
+                      <span className="truncate" style={{ color: "var(--text-primary)" }}>{file.name}</span>
+                      <span style={{ color: "var(--text-muted)" }}>
+                        ({(file.size / 1024 / 1024).toFixed(1)} MB)
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {uploading && uploadProgress.current > i && (
+                        isUploaded ? <Check size={12} style={{ color: "#4caf50" }} />
+                        : isFailed ? <X size={12} style={{ color: "#ff6b6b" }} />
+                        : <Loader2 size={12} className="animate-spin" style={{ color: "var(--accent-gold)" }} />
+                      )}
+                      {!uploading && (
+                        <button type="button" onClick={() => removeFile(i)} style={{ color: "var(--text-muted)" }}>
+                          <X size={12} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+
+          {/* Progress bar */}
+          {uploading && uploadProgress.total > 0 && (
+            <div>
+              <div className="flex items-center justify-between text-xs mb-1.5">
+                <span style={{ color: "var(--text-muted)" }}>
+                  Uploading {uploadProgress.current} of {uploadProgress.total}
+                </span>
+                <span style={{ color: "var(--accent-gold)" }}>
+                  {Math.round((uploadProgress.current / uploadProgress.total) * 100)}%
+                </span>
+              </div>
+              <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: "var(--bg-primary)" }}>
+                <motion.div
+                  className="h-full rounded-full"
+                  style={{ background: "linear-gradient(90deg, #c9a84c, #e8c96a)" }}
+                  initial={{ width: 0 }}
+                  animate={{ width: `${(uploadProgress.current / uploadProgress.total) * 100}%` }}
+                  transition={{ duration: 0.3 }}
+                />
+              </div>
+            </div>
+          )}
+
           <div>
             <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-muted)" }}>
-              Caption
+              Caption (applied to all selected images)
             </label>
             <input
               type="text"
@@ -169,9 +275,10 @@ export default function AdminGallery() {
               }}
             />
           </div>
+
           <button
             type="submit"
-            disabled={uploading}
+            disabled={uploading || selectedFiles.length === 0}
             className="rounded-xl px-6 py-3 text-sm font-semibold transition-all hover:opacity-90 disabled:opacity-50 flex items-center gap-2"
             style={{
               background: "linear-gradient(135deg, #c9a84c, #e8c96a)",
@@ -186,10 +293,11 @@ export default function AdminGallery() {
             ) : (
               <>
                 <Upload size={16} />
-                Upload to Cloudinary
+                Upload {selectedFiles.length > 0 ? `(${selectedFiles.length})` : ""} to Cloudinary
               </>
             )}
           </button>
+
           {message && (
             <motion.p
               initial={{ opacity: 0 }}
