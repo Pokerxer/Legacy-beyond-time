@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { connectDB } from "@/lib/mongoose"
 import { RSVP } from "@/lib/models/RSVP"
+import { sendRSVPNotification } from "@/lib/email"
 
 export async function GET() {
   const session = await getServerSession(authOptions)
@@ -30,6 +31,16 @@ export async function POST(req: NextRequest) {
       attending: body.attending !== false,
       message: body.message || "",
     })
+
+    sendRSVPNotification({
+      name: body.name,
+      email: body.email,
+      phone: body.phone,
+      attendees: Number(body.attendees) || 1,
+      attending: body.attending !== false,
+      message: body.message,
+    }).catch(() => {})
+
     return NextResponse.json(rsvp, { status: 201 })
   } catch {
     return NextResponse.json({ error: "Failed to save RSVP" }, { status: 500 })

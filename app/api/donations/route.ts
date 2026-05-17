@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { connectDB } from "@/lib/mongoose"
 import { Donation } from "@/lib/models/Donation"
+import { sendDonationNotification } from "@/lib/email"
 
 export async function GET() {
   const session = await getServerSession(authOptions)
@@ -31,6 +32,16 @@ export async function POST(req: NextRequest) {
       message: body.message || "",
       isAnonymous: body.isAnonymous || false,
     })
+
+    sendDonationNotification({
+      donorName: body.donorName,
+      amount: body.amount,
+      currency: body.currency,
+      message: body.message,
+      isAnonymous: body.isAnonymous || false,
+      donorEmail: body.donorEmail,
+    }).catch(() => {})
+
     return NextResponse.json(donation, { status: 201 })
   } catch {
     return NextResponse.json({ error: "Failed to create donation" }, { status: 500 })
