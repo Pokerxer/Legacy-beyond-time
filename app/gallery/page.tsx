@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
@@ -144,6 +144,7 @@ function UploadZone({ onUploaded }: { onUploaded: (item: GalleryItem) => void })
     try {
       const fd = new FormData()
       fd.append("file", pf.file)
+      fd.append("caption", pf.caption || pf.file.name.replace(/\.[^.]+$/, ""))
 
       const res = await fetch("/api/gallery/upload", { method: "POST", body: fd })
       if (!res.ok) throw new Error("Upload failed")
@@ -151,7 +152,7 @@ function UploadZone({ onUploaded }: { onUploaded: (item: GalleryItem) => void })
 
       const item: GalleryItem = {
         url: data.url,
-        caption: pf.caption || pf.file.name.replace(/\.[^.]+$/, ""),
+        caption: data.caption || pf.caption || pf.file.name.replace(/\.[^.]+$/, ""),
         type: "photo",
       }
 
@@ -318,9 +319,28 @@ function UploadZone({ onUploaded }: { onUploaded: (item: GalleryItem) => void })
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function GalleryPage() {
-  const [gallery, setGallery] = useState<GalleryItem[]>(memorial.gallery)
+  const [gallery, setGallery] = useState<GalleryItem[]>([])
+  const [loading, setLoading] = useState(true)
   const [lightbox, setLightbox] = useState<GalleryItem | null>(null)
   const [toastVisible, setToastVisible] = useState(false)
+
+  useEffect(() => {
+    fetch("/api/gallery")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setGallery(data.map((d: { url: string; caption: string }) => ({
+            url: d.url,
+            caption: d.caption || "",
+            type: "photo" as const,
+          })))
+        } else {
+          setGallery(memorial.gallery)
+        }
+      })
+      .catch(() => setGallery(memorial.gallery))
+      .finally(() => setLoading(false))
+  }, [])
 
   const onUploaded = (item: GalleryItem) => {
     setGallery((prev) => [item, ...prev])
@@ -439,18 +459,25 @@ export default function GalleryPage() {
             <p className="text-xs mb-4" style={{ color: "var(--text-muted)", fontFamily: "var(--font-lato)" }}>
               {gallery.length} photo{gallery.length !== 1 ? "s" : ""} in the gallery
             </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              <AnimatePresence mode="popLayout">
-                {gallery.map((item, i) => (
-                  <GalleryCard
-                    key={item.url}
-                    item={item}
-                    index={i}
-                    onClick={() => setLightbox(item)}
-                  />
-                ))}
-              </AnimatePresence>
-            </div>
+
+            {loading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 size={28} className="animate-spin" style={{ color: "var(--accent-gold)" }} />
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <AnimatePresence mode="popLayout">
+                  {gallery.map((item, i) => (
+                    <GalleryCard
+                      key={item.url}
+                      item={item}
+                      index={i}
+                      onClick={() => setLightbox(item)}
+                    />
+                  ))}
+                </AnimatePresence>
+              </div>
+            )}
           </motion.div>
         </div>
       </div>

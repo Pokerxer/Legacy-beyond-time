@@ -7,6 +7,7 @@ export interface ITribute extends Document {
   authorPhoto?: string
   location?: string
   relationship: string
+  category: "tribute" | "condolence"
   message: string
   whatTheyMiss?: string
   impact?: string
@@ -22,6 +23,7 @@ const TributeSchema = new Schema<ITribute>(
     authorPhoto: { type: String },
     location: { type: String },
     relationship: { type: String, required: true },
+    category: { type: String, enum: ["tribute", "condolence"], default: "tribute" },
     message: { type: String, required: true },
     whatTheyMiss: { type: String },
     impact: { type: String },

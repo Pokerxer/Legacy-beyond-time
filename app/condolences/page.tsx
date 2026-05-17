@@ -14,12 +14,13 @@ import {
   Users,
   MessageSquareHeart,
   Flame,
+  Loader2,
 } from "lucide-react"
 import Button from "@/components/ui/Button"
 import Toast from "@/components/ui/Toast"
 import { memorial } from "@/data/memorial"
 
-// ─── Static condolences dataset ──────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 interface Condolence {
   id: string
   name: string
@@ -31,74 +32,33 @@ interface Condolence {
   color: string
 }
 
-const INITIAL_CONDOLENCES: Condolence[] = [
-  {
-    id: "1",
-    name: "Rev. Fr. Michael Okafor",
-    location: "Mbaise, Imo State",
-    relationship: "Parish Priest",
-    message:
-      "Mama Christiana was a pillar of our parish. Her faith, generosity, and motherly heart touched everyone who knew her. She gave so much of herself to God and to this community without ever asking for anything in return. May her soul rest in perfect peace, and may the Lord grant her family the grace to bear this loss with hope and courage.",
-    date: "2026-05-10",
-    initials: "MO",
-    color: "#7c5cbf",
-  },
-  {
-    id: "2",
-    name: "CWO Mbaise Diocese",
-    location: "Mbaise, Imo State",
-    relationship: "Catholic Women Organisation",
-    message:
-      "Our beloved mother and leader. You fought the good fight, you kept the faith. Heaven has gained a worthy angel. The legacy you built within our organisation will endure for generations. We will miss your wisdom, your laughter, and the warmth you brought to every gathering. Rest well, Mama.",
-    date: "2026-05-11",
-    initials: "CW",
-    color: "#c9a84c",
-  },
-  {
-    id: "3",
-    name: "Dr. & Mrs. Okonkwo",
-    location: "Owerri, Imo State",
-    relationship: "Family Friends",
-    message:
-      "Mama's impact on our community is immeasurable. She was a true mother to all. We pray that God grants her eternal rest and grants the family the strength to bear this loss. Her kindness was legendary — she never turned anyone away from her door. We are blessed to have known her.",
-    date: "2026-05-12",
-    initials: "OK",
-    color: "#4caf93",
-  },
-  {
-    id: "4",
-    name: "Chief Emeka Nwosu",
-    location: "Abuja, FCT",
-    relationship: "Community Leader",
-    message:
-      "The world has lost a great woman and a servant of humanity. Chief Christiana was appointed Justice of the Peace not merely as a title — she lived justice every day. Her fairness, compassion and integrity set a standard we must all aspire to. May her memory be eternal.",
-    date: "2026-05-13",
-    initials: "EN",
-    color: "#c9614c",
-  },
-  {
-    id: "5",
-    name: "Adaeze Iro-Obi",
-    location: "Lagos, Nigeria",
-    relationship: "Former Neighbour",
-    message:
-      "I remember as a young girl how Mama Christiana would call me in from the street and give me food whenever she noticed I was hungry. She saw children and she saw them fully. I never forgot her kindness. I am heartbroken at this news. Rest in the arms of the Lord, Mama.",
-    date: "2026-05-14",
-    initials: "AI",
-    color: "#5ba4d4",
-  },
-  {
-    id: "6",
-    name: "The Eze Family",
-    location: "Port Harcourt, Rivers State",
-    relationship: "Extended Family",
-    message:
-      "We mourn alongside the Opara family and the entire Mbaise community. Mama was a unifying force whose love held many together. Though she is gone, the love she poured into this world continues to multiply. We hold her memory dear and we celebrate her extraordinary life.",
-    date: "2026-05-15",
-    initials: "EZ",
-    color: "#9c5cbf",
-  },
-]
+interface TributeDoc {
+  _id: string
+  authorName: string
+  location?: string
+  relationship: string
+  message: string
+  createdAt: string
+}
+
+const PALETTE = ["#c9a84c", "#7c5cbf", "#4caf93", "#c9614c", "#5ba4d4", "#9c5cbf"]
+
+function toCondolence(t: TributeDoc, i: number): Condolence {
+  return {
+    id: t._id,
+    name: t.authorName,
+    location: t.location || "",
+    relationship: t.relationship,
+    message: t.message,
+    date: new Date(t.createdAt).toISOString().split("T")[0],
+    initials: t.authorName
+      .split(" ")
+      .slice(0, 2)
+      .map((w) => w[0]?.toUpperCase() ?? "")
+      .join(""),
+    color: PALETTE[i % PALETTE.length],
+  }
+}
 
 const RELATIONSHIP_OPTIONS = [
   "Family Member",
@@ -238,7 +198,8 @@ function CondolenceCard({ c, index }: { c: Condolence; index: number }) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function CondolencesPage() {
-  const [condolences, setCondolences] = useState<Condolence[]>(INITIAL_CONDOLENCES)
+  const [condolences, setCondolences] = useState<Condolence[]>([])
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
   const [toastVisible, setToastVisible] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -248,6 +209,18 @@ export default function CondolencesPage() {
     relationship: "",
     message: "",
   })
+
+  useEffect(() => {
+    fetch("/api/tributes?category=condolence")
+      .then((r) => r.json())
+      .then((data: TributeDoc[]) => {
+        if (Array.isArray(data)) {
+          setCondolences(data.map(toCondolence))
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
 
   const filtered = condolences.filter(
     (c) =>
@@ -261,29 +234,46 @@ export default function CondolencesPage() {
     e.preventDefault()
     if (!form.name || !form.location || !form.relationship || !form.message) return
     setSubmitting(true)
-    await new Promise((r) => setTimeout(r, 900))
 
-    const initials = form.name
-      .split(" ")
-      .slice(0, 2)
-      .map((w) => w[0]?.toUpperCase() ?? "")
-      .join("")
+    try {
+      const res = await fetch("/api/tributes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          authorName: form.name,
+          location: form.location,
+          relationship: form.relationship,
+          message: form.message,
+          category: "condolence",
+        }),
+      })
 
-    const colors = ["#c9a84c", "#7c5cbf", "#4caf93", "#c9614c", "#5ba4d4", "#9c5cbf"]
-    const color = colors[condolences.length % colors.length]
-
-    const newCondolence: Condolence = {
-      id: String(Date.now()),
-      name: form.name,
-      location: form.location,
-      relationship: form.relationship,
-      message: form.message,
-      date: new Date().toISOString().split("T")[0],
-      initials,
-      color,
+      if (!res.ok) throw new Error("Failed")
+      const saved: TributeDoc = await res.json()
+      setCondolences((prev) => [toCondolence(saved, prev.length), ...prev])
+    } catch {
+      // Show locally on API failure
+      const initials = form.name
+        .split(" ")
+        .slice(0, 2)
+        .map((w) => w[0]?.toUpperCase() ?? "")
+        .join("")
+      const color = PALETTE[condolences.length % PALETTE.length]
+      setCondolences((prev) => [
+        {
+          id: String(Date.now()),
+          name: form.name,
+          location: form.location,
+          relationship: form.relationship,
+          message: form.message,
+          date: new Date().toISOString().split("T")[0],
+          initials,
+          color,
+        },
+        ...prev,
+      ])
     }
 
-    setCondolences((prev) => [newCondolence, ...prev])
     setForm({ name: "", location: "", relationship: "", message: "" })
     setSubmitting(false)
     setToastVisible(true)
@@ -341,7 +331,6 @@ export default function CondolencesPage() {
 
       {/* ── Hero ── */}
       <section className="relative px-6 py-16 sm:py-24 text-center overflow-hidden">
-        {/* Soft glow */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -397,10 +386,7 @@ export default function CondolencesPage() {
                 Messages
               </div>
             </div>
-            <div
-              className="w-px h-8"
-              style={{ background: "var(--border-gold)" }}
-            />
+            <div className="w-px h-8" style={{ background: "var(--border-gold)" }} />
             <div className="text-center">
               <div
                 className="text-2xl font-bold"
@@ -412,10 +398,7 @@ export default function CondolencesPage() {
                 Locations
               </div>
             </div>
-            <div
-              className="w-px h-8"
-              style={{ background: "var(--border-gold)" }}
-            />
+            <div className="w-px h-8" style={{ background: "var(--border-gold)" }} />
             <div className="text-center">
               <div
                 className="text-2xl font-bold"
@@ -466,7 +449,6 @@ export default function CondolencesPage() {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Name */}
                 <div>
                   <label
                     className="block text-xs font-medium mb-1.5"
@@ -485,7 +467,6 @@ export default function CondolencesPage() {
                   />
                 </div>
 
-                {/* Location */}
                 <div>
                   <label
                     className="block text-xs font-medium mb-1.5"
@@ -504,7 +485,6 @@ export default function CondolencesPage() {
                   />
                 </div>
 
-                {/* Relationship */}
                 <div>
                   <label
                     className="block text-xs font-medium mb-1.5"
@@ -535,7 +515,6 @@ export default function CondolencesPage() {
                   </select>
                 </div>
 
-                {/* Message */}
                 <div>
                   <label
                     className="block text-xs font-medium mb-1.5"
@@ -567,7 +546,7 @@ export default function CondolencesPage() {
                   className="w-full"
                 >
                   {submitting ? (
-                    <><span className="animate-spin inline-block">✦</span> Sending…</>
+                    <><Loader2 size={15} className="animate-spin" /> Sending…</>
                   ) : (
                     <><Send size={15} /> Send Condolence</>
                   )}
@@ -639,29 +618,35 @@ export default function CondolencesPage() {
             </div>
 
             {/* Cards */}
-            <div className="space-y-4">
-              <AnimatePresence mode="popLayout">
-                {filtered.length > 0 ? (
-                  filtered.map((c, i) => (
-                    <CondolenceCard key={c.id} c={c} index={i} />
-                  ))
-                ) : (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="text-center py-16"
-                  >
-                    <Search size={32} className="mx-auto mb-3 opacity-20" style={{ color: "var(--text-muted)" }} />
-                    <p
-                      className="text-sm"
-                      style={{ color: "var(--text-muted)", fontFamily: "var(--font-lato)" }}
+            {loading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 size={28} className="animate-spin" style={{ color: "var(--accent-gold)" }} />
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <AnimatePresence mode="popLayout">
+                  {filtered.length > 0 ? (
+                    filtered.map((c, i) => (
+                      <CondolenceCard key={c.id} c={c} index={i} />
+                    ))
+                  ) : (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="text-center py-16"
                     >
-                      No condolences match your search.
-                    </p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+                      <Search size={32} className="mx-auto mb-3 opacity-20" style={{ color: "var(--text-muted)" }} />
+                      <p
+                        className="text-sm"
+                        style={{ color: "var(--text-muted)", fontFamily: "var(--font-lato)" }}
+                      >
+                        No condolences match your search.
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
           </motion.div>
         </div>
       </div>

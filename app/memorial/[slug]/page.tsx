@@ -16,6 +16,7 @@ import FamilySection from "@/components/memorial/FamilySection"
 import TributesWall from "@/components/memorial/TributesWall"
 import TributeModal from "@/components/memorial/TributeModal"
 import FuneralInfo from "@/components/memorial/FuneralInfo"
+import CandleWall from "@/components/memorial/CandleWall"
 import type { TabId } from "@/components/memorial/NavigationTabs"
 
 const SECTION_IDS = ["overview", "gallery", "achievements", "tributes", "funeral"] as const
@@ -44,7 +45,7 @@ export default function MemorialPage({
   const data = memorial
 
   const fetchTributes = () => {
-    fetch("/api/tributes")
+    fetch("/api/tributes?category=tribute")
       .then((res) => res.json())
       .then((data) => setTributes(data))
       .catch(() => {})
@@ -135,6 +136,12 @@ export default function MemorialPage({
       <FamilySection family={data.family} grandchildren={data.grandchildren} />
 
       <TributesWall tributes={tributes} onOpenModal={() => setTributeModalOpen(true)} />
+
+      <SectionDivider />
+
+      <CandleWall />
+
+      <SectionDivider />
 
       <section id="funeral">
         <FuneralInfo details={data.funeralDetails} />

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Heart, Images, ScrollText } from "lucide-react";
+import { Heart, Images, ScrollText, HandHeart, CalendarCheck, Flame } from "lucide-react";
 import { memorial } from "@/data/memorial";
 import { fadeUpInView, fadeUp } from "@/components/landing/animations";
 import FlyingAngels from "@/components/landing/FlyingAngels";
@@ -176,24 +176,45 @@ const STARS = [
 const steps = [
   {
     icon: Heart,
-    label: "Create Tribute",
+    label: "Leave a Tribute",
     description:
-      "Families add the life story, achievements, and funeral details to build a lasting memorial.",
+      "Share a memory, a story, or how Mama touched your life. A lasting tribute for the family.",
     href: "/tributes",
   },
   {
     icon: Images,
     label: "Share Photos",
     description:
-      "Upload cherished moments to the gallery — a beautiful masonry of memories.",
+      "Upload cherished moments to the gallery — a beautiful collection of memories.",
     href: "/gallery",
   },
   {
     icon: ScrollText,
     label: "Condolence Letter",
     description:
-      "Write a heartfelt condolence message to comfort the family and honour the memory of their loved one.",
+      "Write a heartfelt message to comfort the family and honour Mama's memory.",
     href: "/condolences",
+  },
+  {
+    icon: Flame,
+    label: "Light a Candle",
+    description:
+      "Light a virtual candle in her memory and leave a brief prayer or message.",
+    href: "/memorial/christiana-opara#candles",
+  },
+  {
+    icon: HandHeart,
+    label: "Support Family",
+    description:
+      "Contribute towards the burial and support the family during this difficult time.",
+    href: "/donate",
+  },
+  {
+    icon: CalendarCheck,
+    label: "RSVP",
+    description:
+      "Let the family know if you will be attending the funeral service.",
+    href: "/rsvp",
   },
 ];
 
@@ -473,7 +494,7 @@ export default function LandingPage() {
             className="text-center text-2xl sm:text-3xl font-semibold mb-4"
             style={{ fontFamily: "var(--font-playfair)", color: "var(--text-primary)" }}
           >
-            A Tribute in Three Steps
+            Ways to Honour Her Memory
           </motion.h2>
 
           <motion.p
@@ -481,13 +502,20 @@ export default function LandingPage() {
             className="text-center text-sm sm:text-base mb-10 sm:mb-14 max-w-lg mx-auto"
             style={{ fontFamily: "var(--font-lato)", color: "var(--text-muted)" }}
           >
-            Creating a lasting memorial is simple, meaningful, and free.
+            Every act of remembrance keeps her spirit alive.
           </motion.p>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6">
             {steps.map((step, i) => {
               const Icon = step.icon;
-              const ctas = ["Leave a Tribute →", "Share Photos →", "Write a Letter →"];
+              const ctas = [
+                "Leave a Tribute →",
+                "Share Photos →",
+                "Write a Letter →",
+                "Light a Candle →",
+                "Support the Family →",
+                "RSVP →",
+              ];
               return (
                 <motion.article
                   key={step.label}

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
@@ -15,10 +15,11 @@ import {
   Star,
   Quote,
   Check,
+  Loader2,
 } from "lucide-react"
 import Button from "@/components/ui/Button"
 import Toast from "@/components/ui/Toast"
-import { memorial, sampleTributes } from "@/data/memorial"
+import { memorial } from "@/data/memorial"
 import type { Tribute } from "@/types"
 
 const RELATIONSHIPS = [
@@ -185,7 +186,8 @@ function TributeCard({ t, index }: { t: Tribute; index: number }) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function TributesPage() {
-  const [tributes, setTributes] = useState<Tribute[]>(sampleTributes)
+  const [tributes, setTributes] = useState<Tribute[]>([])
+  const [loading, setLoading] = useState(true)
   const [toastVisible, setToastVisible] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -198,29 +200,57 @@ export default function TributesPage() {
     message: "",
   })
 
+  useEffect(() => {
+    fetch("/api/tributes?category=tribute")
+      .then((r) => r.json())
+      .then((data) => setTributes(Array.isArray(data) ? data : []))
+      .catch(() => setTributes([]))
+      .finally(() => setLoading(false))
+  }, [])
+
   const set = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
     setForm((f) => ({ ...f, [field]: e.target.value }))
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
-    await new Promise((r) => setTimeout(r, 900))
 
-    const newTribute: Tribute = {
-      _id: String(Date.now()),
-      memorialId: memorial.slug,
-      authorName: form.name,
-      authorEmail: form.email,
-      authorPhoto: "",
-      relationship: form.relationship,
-      message: form.message,
-      impact: form.impact,
-      whatTheyMiss: form.whatTheyMiss,
-      isApproved: true,
-      createdAt: new Date().toISOString(),
+    try {
+      const res = await fetch("/api/tributes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          authorName: form.name,
+          authorEmail: form.email,
+          relationship: form.relationship,
+          message: form.message,
+          impact: form.impact,
+          whatTheyMiss: form.whatTheyMiss,
+          category: "tribute",
+        }),
+      })
+
+      if (!res.ok) throw new Error("Failed")
+      const newTribute: Tribute = await res.json()
+      setTributes((prev) => [newTribute, ...prev])
+    } catch {
+      // Show tribute locally even if API fails
+      const newTribute: Tribute = {
+        _id: String(Date.now()),
+        memorialId: memorial.slug,
+        authorName: form.name,
+        authorEmail: form.email,
+        authorPhoto: "",
+        relationship: form.relationship,
+        message: form.message,
+        impact: form.impact,
+        whatTheyMiss: form.whatTheyMiss,
+        isApproved: true,
+        createdAt: new Date().toISOString(),
+      }
+      setTributes((prev) => [newTribute, ...prev])
     }
 
-    setTributes((prev) => [newTribute, ...prev])
     setForm({ name: "", email: "", relationship: "", impact: "", whatTheyMiss: "", message: "" })
     setSubmitting(false)
     setSubmitted(true)
@@ -407,7 +437,7 @@ export default function TributesPage() {
                   {submitted ? (
                     <><Check size={15} /> Tribute Submitted!</>
                   ) : submitting ? (
-                    <><span className="animate-spin inline-block">✦</span> Submitting…</>
+                    <><Loader2 size={15} className="animate-spin" /> Submitting…</>
                   ) : (
                     <><Send size={15} /> Submit Tribute</>
                   )}
@@ -430,11 +460,18 @@ export default function TributesPage() {
             <p className="text-xs mb-4" style={{ color: "var(--text-muted)", fontFamily: "var(--font-lato)" }}>
               {tributes.length} tribute{tributes.length !== 1 ? "s" : ""} shared
             </p>
-            <AnimatePresence mode="popLayout">
-              {tributes.map((t, i) => (
-                <TributeCard key={t._id} t={t} index={i} />
-              ))}
-            </AnimatePresence>
+
+            {loading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 size={28} className="animate-spin" style={{ color: "var(--accent-gold)" }} />
+              </div>
+            ) : (
+              <AnimatePresence mode="popLayout">
+                {tributes.map((t, i) => (
+                  <TributeCard key={t._id} t={t} index={i} />
+                ))}
+              </AnimatePresence>
+            )}
           </motion.div>
         </div>
       </div>

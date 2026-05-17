@@ -43,6 +43,7 @@ export interface Tribute {
   authorPhoto?: string
   location?: string
   relationship: string
+  category?: "tribute" | "condolence"
   message: string
   whatTheyMiss: string
   impact: string

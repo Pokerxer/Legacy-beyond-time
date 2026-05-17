@@ -1,16 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
 import cloudinary, { CLOUDINARY_FOLDER } from "@/lib/cloudinary"
 import { connectDB } from "@/lib/mongoose"
 import { GalleryImage } from "@/lib/models/GalleryImage"
 
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions)
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-
   try {
     await connectDB()
     const formData = await request.formData()
