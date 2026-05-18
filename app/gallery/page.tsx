@@ -13,14 +13,25 @@ import {
   Check,
   ImagePlus,
   Loader2,
+  Play,
 } from "lucide-react"
 import Button from "@/components/ui/Button"
 import Toast from "@/components/ui/Toast"
 import { memorial } from "@/data/memorial"
 import type { GalleryItem } from "@/types"
 
+// ─── Video detection ──────────────────────────────────────────────────────────
+function isVideoUrl(url: string) {
+  return /\.(mp4|webm|ogg|mov|avi|mkv)(\?|$)/i.test(url)
+}
+
+function isVideoItem(item: GalleryItem) {
+  return item.type === "video" || isVideoUrl(item.url)
+}
+
 // ─── Lightbox ─────────────────────────────────────────────────────────────────
 function Lightbox({ item, onClose }: { item: GalleryItem; onClose: () => void }) {
+  const video = isVideoItem(item)
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -38,9 +49,19 @@ function Lightbox({ item, onClose }: { item: GalleryItem; onClose: () => void })
         className="relative max-w-4xl w-full max-h-[90vh] rounded-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="relative w-full" style={{ aspectRatio: "16/10" }}>
-          <Image src={item.url} alt={item.caption || "Gallery photo"} fill className="object-contain" />
-        </div>
+        {video ? (
+          <video
+            src={item.url}
+            controls
+            autoPlay
+            className="w-full max-h-[80vh] rounded-2xl"
+            style={{ background: "#000" }}
+          />
+        ) : (
+          <div className="relative w-full" style={{ aspectRatio: "16/10" }}>
+            <Image src={item.url} alt={item.caption || "Gallery photo"} fill className="object-contain" />
+          </div>
+        )}
         {item.caption && (
           <div
             className="absolute bottom-0 left-0 right-0 px-6 py-4 text-center"
@@ -66,6 +87,7 @@ function Lightbox({ item, onClose }: { item: GalleryItem; onClose: () => void })
 
 // ─── Gallery card ─────────────────────────────────────────────────────────────
 function GalleryCard({ item, index, onClick }: { item: GalleryItem; index: number; onClick: () => void }) {
+  const video = isVideoItem(item)
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -76,19 +98,40 @@ function GalleryCard({ item, index, onClick }: { item: GalleryItem; index: numbe
       style={{ aspectRatio: "1", border: "1px solid var(--border-gold)" }}
       onClick={onClick}
     >
-      <Image
-        src={item.url}
-        alt={item.caption || "Memorial photo"}
-        fill
-        className="object-cover transition-transform duration-500 group-hover:scale-105"
-        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-      />
-      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
-        <ZoomIn
-          size={24}
-          className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 drop-shadow"
-        />
-      </div>
+      {video ? (
+        <>
+          <video
+            src={item.url}
+            muted
+            playsInline
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
+            <div
+              className="w-10 h-10 rounded-full flex items-center justify-center"
+              style={{ background: "rgba(0,0,0,0.55)" }}
+            >
+              <Play size={18} color="white" className="translate-x-0.5" />
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          <Image
+            src={item.url}
+            alt={item.caption || "Memorial photo"}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
+            <ZoomIn
+              size={24}
+              className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 drop-shadow"
+            />
+          </div>
+        </>
+      )}
       {item.caption && (
         <div
           className="absolute bottom-0 left-0 right-0 px-2 py-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -122,7 +165,7 @@ function UploadZone({ onUploaded }: { onUploaded: (item: GalleryItem) => void })
   const addFiles = useCallback((files: FileList | null, currentEventCaption: string) => {
     if (!files) return
     const next: PendingFile[] = Array.from(files)
-      .filter((f) => f.type.startsWith("image/"))
+      .filter((f) => f.type.startsWith("image/") || f.type.startsWith("video/"))
       .map((f) => ({
         id: `${f.name}-${Date.now()}-${Math.random()}`,
         file: f,
@@ -153,7 +196,7 @@ function UploadZone({ onUploaded }: { onUploaded: (item: GalleryItem) => void })
       const item: GalleryItem = {
         url: data.url,
         caption: data.caption || pf.caption || pf.file.name.replace(/\.[^.]+$/, ""),
-        type: "photo",
+        type: pf.file.type.startsWith("video/") ? "video" : "photo",
       }
 
       setPending((prev) => prev.map((p) => p.id === pf.id ? { ...p, status: "done", uploadedUrl: data.url } : p))
@@ -225,12 +268,12 @@ function UploadZone({ onUploaded }: { onUploaded: (item: GalleryItem) => void })
           {" "}or drag & drop them here
         </p>
         <p className="text-xs" style={{ color: "var(--text-muted)", fontFamily: "var(--font-lato)" }}>
-          JPG, PNG, WEBP — up to 10 MB each
+          JPG, PNG, WEBP, MP4, MOV — up to 100 MB each
         </p>
         <input
           ref={inputRef}
           type="file"
-          accept="image/*"
+          accept="image/*,video/*"
           multiple
           className="hidden"
           onChange={(e) => addFiles(e.target.files, eventCaption)}
@@ -250,8 +293,12 @@ function UploadZone({ onUploaded }: { onUploaded: (item: GalleryItem) => void })
             style={{ background: "var(--card-bg)", border: "1px solid var(--border-gold)" }}
           >
             {/* Thumb */}
-            <div className="shrink-0 w-16 h-16 rounded-lg overflow-hidden relative">
-              <Image src={pf.preview} alt="preview" fill className="object-cover" />
+            <div className="shrink-0 w-16 h-16 rounded-lg overflow-hidden relative bg-black/20">
+              {pf.file.type.startsWith("video/") ? (
+                <video src={pf.preview} className="w-full h-full object-cover" muted />
+              ) : (
+                <Image src={pf.preview} alt="preview" fill className="object-cover" />
+              )}
               {pf.status === "done" && (
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                   <Check size={20} color="#c9a84c" />
@@ -260,6 +307,11 @@ function UploadZone({ onUploaded }: { onUploaded: (item: GalleryItem) => void })
               {pf.status === "uploading" && (
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                   <Loader2 size={20} color="white" className="animate-spin" />
+                </div>
+              )}
+              {pf.file.type.startsWith("video/") && pf.status === "pending" && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <Play size={16} color="white" className="drop-shadow" />
                 </div>
               )}
             </div>

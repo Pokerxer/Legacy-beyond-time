@@ -1,7 +1,8 @@
 "use client"
 
+import Link from "next/link"
 import { motion } from "framer-motion"
-import { MapPin, Calendar, Clock, ExternalLink } from "lucide-react"
+import { MapPin, Calendar, Clock, ExternalLink, Printer, CalendarCheck } from "lucide-react"
 import Button from "@/components/ui/Button"
 import type { FuneralDetails } from "@/types"
 
@@ -27,6 +28,20 @@ export default function FuneralInfo({ details }: FuneralInfoProps) {
               Funeral arrangements will be announced
             </p>
             <p className="text-sm">Please check back for updates.</p>
+            <div className="flex flex-wrap gap-3 mt-2 justify-center">
+              <Link href="/rsvp">
+                <Button variant="primary">
+                  <CalendarCheck size={15} />
+                  RSVP
+                </Button>
+              </Link>
+              <Link href="/program" target="_blank">
+                <Button variant="secondary">
+                  <Printer size={15} />
+                  Print Program
+                </Button>
+              </Link>
+            </div>
           </motion.div>
         </div>
       </section>
@@ -106,10 +121,18 @@ export default function FuneralInfo({ details }: FuneralInfoProps) {
           </div>
 
           <div className="flex flex-wrap gap-3 pt-3">
-            <Button variant="primary">
-              <Calendar size={16} />
-              Add to Calendar
-            </Button>
+            <Link href="/rsvp">
+              <Button variant="primary">
+                <CalendarCheck size={16} />
+                RSVP
+              </Button>
+            </Link>
+            <Link href="/program" target="_blank">
+              <Button variant="secondary">
+                <Printer size={16} />
+                Print Program
+              </Button>
+            </Link>
             {details.livestreamUrl && (
               <a href={details.livestreamUrl} target="_blank" rel="noopener noreferrer">
                 <Button variant="secondary">
