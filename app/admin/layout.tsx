@@ -3,16 +3,29 @@
 import { useSession, signOut } from "next-auth/react"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
-import { LayoutDashboard, MessageSquareHeart, Heart, Image as ImageIcon, HandHeart, LogOut, Menu, X } from "lucide-react"
+import {
+  LayoutDashboard,
+  MessageSquareHeart,
+  Heart,
+  Image as ImageIcon,
+  HandHeart,
+  LogOut,
+  Menu,
+  X,
+  CalendarCheck,
+  Flame,
+} from "lucide-react"
 import { SessionProvider } from "next-auth/react"
 import { useState, useEffect } from "react"
 
 const navItems = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/tributes", label: "Tributes", icon: MessageSquareHeart },
-  { href: "/admin/condolence", label: "Condolence", icon: Heart },
-  { href: "/admin/gallery", label: "Gallery", icon: ImageIcon },
-  { href: "/admin/donations", label: "Donations", icon: HandHeart },
+  { href: "/admin",            label: "Dashboard",    icon: LayoutDashboard },
+  { href: "/admin/tributes",   label: "Tributes",     icon: MessageSquareHeart },
+  { href: "/admin/condolence", label: "Condolences",  icon: Heart },
+  { href: "/admin/gallery",    label: "Gallery",      icon: ImageIcon },
+  { href: "/admin/donations",  label: "Donations",    icon: HandHeart },
+  { href: "/admin/rsvp",       label: "RSVP",         icon: CalendarCheck },
+  { href: "/admin/candles",    label: "Candles",      icon: Flame },
 ]
 
 function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => void }) {
@@ -56,14 +69,12 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
     }
   }, [status, router, isLoginPage])
 
-  if (isLoginPage) {
-    return <>{children}</>
-  }
+  if (isLoginPage) return <>{children}</>
 
   if (status === "loading" || !session) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg-primary)" }}>
-        <p style={{ color: "var(--text-muted)" }}>Loading...</p>
+        <p style={{ color: "var(--text-muted)" }}>Loading…</p>
       </div>
     )
   }
@@ -73,15 +84,9 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
       {/* Mobile header */}
       <div
         className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-3 sm:hidden"
-        style={{
-          background: "var(--bg-secondary)",
-          borderBottom: "1px solid var(--border-gold)",
-        }}
+        style={{ background: "var(--bg-secondary)", borderBottom: "1px solid var(--border-gold)" }}
       >
-        <span
-          className="text-sm font-semibold"
-          style={{ fontFamily: "var(--font-playfair)", color: "var(--text-primary)" }}
-        >
+        <span className="text-sm font-semibold" style={{ fontFamily: "var(--font-playfair)", color: "var(--text-primary)" }}>
           Admin Panel
         </span>
         <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ color: "var(--text-primary)" }}>
@@ -96,10 +101,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
           style={{ background: "rgba(15,15,31,0.95)" }}
           onClick={() => setMobileMenuOpen(false)}
         >
-          <div
-            className="pt-16 px-4"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="pt-16 px-4" onClick={(e) => e.stopPropagation()}>
             <AdminSidebar mobile onClose={() => setMobileMenuOpen(false)} />
             <button
               onClick={() => signOut()}
@@ -116,17 +118,11 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
       {/* Desktop sidebar */}
       <aside
         className="hidden sm:flex flex-col w-60 min-h-screen p-6 shrink-0"
-        style={{
-          background: "var(--bg-secondary)",
-          borderRight: "1px solid var(--border-gold)",
-        }}
+        style={{ background: "var(--bg-secondary)", borderRight: "1px solid var(--border-gold)" }}
       >
         <div className="mb-8">
-          <h1
-            className="text-lg font-semibold"
-            style={{ fontFamily: "var(--font-playfair)", color: "var(--text-primary)" }}
-          >
-            Forever Admin
+          <h1 className="text-base font-semibold" style={{ fontFamily: "var(--font-playfair)", color: "var(--text-primary)" }}>
+            Legacy Beyond Time
           </h1>
           <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
             {session.user?.email}
@@ -138,7 +134,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
         <div className="mt-auto pt-6" style={{ borderTop: "1px solid var(--border-gold)" }}>
           <button
             onClick={() => signOut()}
-            className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all w-full"
+            className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all w-full hover:opacity-80"
             style={{ color: "#ff6b6b" }}
           >
             <LogOut size={18} />
