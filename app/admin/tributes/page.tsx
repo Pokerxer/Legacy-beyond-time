@@ -6,7 +6,6 @@ import { CheckCircle, XCircle, Trash2, MessageSquareHeart, Plus, Pencil, X, Load
 import type { Tribute } from "@/types"
 
 const RELATIONSHIPS = [
-  "Condolence",
   "Family Member",
   "Child",
   "Grandchild",
@@ -14,7 +13,7 @@ const RELATIONSHIPS = [
   "Colleague",
   "Church Member",
   "CWO Member",
-  "Neighbor",
+  "Neighbour",
   "Other",
 ]
 
@@ -33,7 +32,7 @@ const emptyForm: FormData = {
   authorName: "",
   authorEmail: "",
   location: "",
-  relationship: "Condolence",
+  relationship: "Friend",
   message: "",
   impact: "",
   whatTheyMiss: "",
@@ -50,10 +49,10 @@ export default function AdminTributes() {
 
   const fetchTributes = useCallback(async () => {
     try {
-      const res = await fetch("/api/tributes")
+      const res = await fetch("/api/tributes?category=tribute")
       if (res.ok) {
         const data = await res.json()
-        setTributes(data)
+        setTributes(Array.isArray(data) ? data : [])
       }
     } catch {
       // silent
@@ -92,11 +91,12 @@ export default function AdminTributes() {
     setSaving(true)
 
     try {
+      const body = { ...form, category: "tribute", memorialId: "christiana-opara" }
       if (editingId) {
         const res = await fetch(`/api/tributes/${editingId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
+          body: JSON.stringify(body),
         })
         if (res.ok) {
           setModalOpen(false)
@@ -106,7 +106,7 @@ export default function AdminTributes() {
         const res = await fetch("/api/tributes", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
+          body: JSON.stringify(body),
         })
         if (res.ok) {
           setModalOpen(false)
