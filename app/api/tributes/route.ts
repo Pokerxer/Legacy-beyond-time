@@ -7,6 +7,13 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB()
 
+    // One-time migration: records seeded before the category field was added
+    // have no category value. Treat them as tributes so the filter is consistent.
+    await Tribute.updateMany(
+      { category: { $exists: false } },
+      { $set: { category: "tribute" } }
+    )
+
     const { searchParams } = new URL(req.url)
     const category = searchParams.get("category")
 
