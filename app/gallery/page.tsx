@@ -381,16 +381,16 @@ export default function GalleryPage() {
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data)) {
-          setGallery(data.map((d: { url: string; caption: string }) => ({
-            url: d.url,
-            caption: d.caption || "",
-            type: "photo" as const,
-          })))
-        } else {
-          setGallery(memorial.gallery)
+          setGallery(
+            data.map((d: { url: string; caption: string; type?: string }) => ({
+              url: d.url,
+              caption: d.caption || "",
+              type: (d.type as "photo" | "video") ?? "photo",
+            }))
+          )
         }
       })
-      .catch(() => setGallery(memorial.gallery))
+      .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
 
