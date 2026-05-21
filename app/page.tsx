@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Heart, Images, ScrollText, HandHeart, CalendarCheck, Flame } from "lucide-react";
-import { memorial } from "@/data/memorial";
+import { useMemorial } from "@/hooks/useMemorial";
 import { fadeUpInView, fadeUp } from "@/components/landing/animations";
 import FlyingAngels from "@/components/landing/FlyingAngels";
 import DonationsSection from "@/components/landing/DonationsSection";
@@ -219,6 +219,7 @@ const steps = [
 ];
 
 export default function LandingPage() {
+  const memorial = useMemorial()
   return (
     <main
       className="relative flex flex-col min-h-screen overflow-x-hidden"

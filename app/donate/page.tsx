@@ -18,7 +18,7 @@ import {
 } from "lucide-react"
 import Button from "@/components/ui/Button"
 import Toast from "@/components/ui/Toast"
-import { memorial } from "@/data/memorial"
+import { useMemorial } from "@/hooks/useMemorial"
 import type { DonationInfo } from "@/types"
 
 // ─── Copy button ──────────────────────────────────────────────────────────────
@@ -119,6 +119,7 @@ function BankCard({
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function DonatePage() {
+  const memorial = useMemorial()
   const [info, setInfo] = useState<DonationInfo | null>(null)
   const [toastVisible, setToastVisible] = useState(false)
   const [submitting, setSubmitting] = useState(false)

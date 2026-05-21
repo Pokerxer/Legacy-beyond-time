@@ -19,7 +19,7 @@ import {
 } from "lucide-react"
 import Button from "@/components/ui/Button"
 import Toast from "@/components/ui/Toast"
-import { memorial } from "@/data/memorial"
+import { useMemorial } from "@/hooks/useMemorial"
 import type { Tribute } from "@/types"
 
 const RELATIONSHIPS = [
@@ -186,6 +186,7 @@ function TributeCard({ t, index }: { t: Tribute; index: number }) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function TributesPage() {
+  const memorial = useMemorial()
   const [tributes, setTributes] = useState<Tribute[]>([])
   const [loading, setLoading] = useState(true)
   const [toastVisible, setToastVisible] = useState(false)

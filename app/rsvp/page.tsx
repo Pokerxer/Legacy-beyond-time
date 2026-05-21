@@ -19,11 +19,12 @@ import {
 } from "lucide-react"
 import Button from "@/components/ui/Button"
 import Toast from "@/components/ui/Toast"
-import { memorial } from "@/data/memorial"
+import { useMemorial } from "@/hooks/useMemorial"
 
 const ATTENDEE_OPTIONS = ["1", "2", "3", "4", "5", "6+"]
 
 export default function RSVPPage() {
+  const memorial = useMemorial()
   const [attending, setAttending] = useState<boolean | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)

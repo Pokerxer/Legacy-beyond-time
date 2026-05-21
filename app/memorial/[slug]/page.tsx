@@ -3,8 +3,8 @@
 import { useState, useEffect, useRef } from "react"
 import { use } from "react"
 import { motion } from "framer-motion"
-import { memorial } from "@/data/memorial"
 import type { Tribute } from "@/types"
+import { useMemorial } from "@/hooks/useMemorial"
 import HeroSection from "@/components/memorial/HeroSection"
 import NavigationTabs from "@/components/memorial/NavigationTabs"
 import BiographySection from "@/components/memorial/BiographySection"
@@ -37,12 +37,11 @@ export default function MemorialPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = use(params)
+  const data = useMemorial()
   const [activeTab, setActiveTab] = useState<TabId>("Overview")
   const [tributeModalOpen, setTributeModalOpen] = useState(false)
   const [tributes, setTributes] = useState<Tribute[]>([])
   const observerRef = useRef<IntersectionObserver | null>(null)
-
-  const data = memorial
 
   const fetchTributes = () => {
     fetch("/api/tributes?category=tribute")

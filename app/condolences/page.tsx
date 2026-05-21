@@ -18,7 +18,7 @@ import {
 } from "lucide-react"
 import Button from "@/components/ui/Button"
 import Toast from "@/components/ui/Toast"
-import { memorial } from "@/data/memorial"
+import { useMemorial } from "@/hooks/useMemorial"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Condolence {
@@ -198,6 +198,7 @@ function CondolenceCard({ c, index }: { c: Condolence; index: number }) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function CondolencesPage() {
+  const memorial = useMemorial()
   const [condolences, setCondolences] = useState<Condolence[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")

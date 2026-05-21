@@ -3,7 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Printer, ChevronLeft, Flame } from "lucide-react"
-import { memorial } from "@/data/memorial"
+import { useMemorial } from "@/hooks/useMemorial"
 
 function fmt(d: string) {
   return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
@@ -16,6 +16,7 @@ function fmtFuneral(d: string) {
 }
 
 export default function ProgramPage() {
+  const memorial = useMemorial()
   const fd = memorial.funeralDetails
 
   return (

@@ -17,7 +17,7 @@ import {
 } from "lucide-react"
 import Button from "@/components/ui/Button"
 import Toast from "@/components/ui/Toast"
-import { memorial } from "@/data/memorial"
+import { useMemorial } from "@/hooks/useMemorial"
 import type { GalleryItem } from "@/types"
 
 // ─── Video detection ──────────────────────────────────────────────────────────
@@ -371,6 +371,7 @@ function UploadZone({ onUploaded }: { onUploaded: (item: GalleryItem) => void })
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function GalleryPage() {
+  const memorial = useMemorial()
   const [gallery, setGallery] = useState<GalleryItem[]>([])
   const [loading, setLoading] = useState(true)
   const [lightbox, setLightbox] = useState<GalleryItem | null>(null)
