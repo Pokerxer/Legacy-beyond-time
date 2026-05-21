@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { connectDB } from "@/lib/mongoose"
 import { Tribute } from "@/lib/models/Tribute"
-import { sampleTributes } from "@/data/memorial"
 import { sendTributeNotification, sendCondolenceNotification } from "@/lib/email"
 
 export async function GET(req: NextRequest) {
@@ -10,25 +9,6 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url)
     const category = searchParams.get("category")
-
-    // Seed sample tributes on first run only
-    const tributeCount = await Tribute.countDocuments({ category: "tribute" })
-    if (tributeCount === 0) {
-      const seedData = sampleTributes.map((t) => ({
-        memorialId: t.memorialId,
-        authorName: t.authorName,
-        authorEmail: t.authorEmail,
-        authorPhoto: t.authorPhoto || "",
-        relationship: t.relationship,
-        category: "tribute",
-        message: t.message,
-        whatTheyMiss: t.whatTheyMiss || "",
-        impact: t.impact || "",
-        isApproved: t.isApproved,
-        createdAt: new Date(t.createdAt),
-      }))
-      await Tribute.insertMany(seedData)
-    }
 
     const filter = category ? { category } : {}
     const tributes = await Tribute.find(filter).sort({ createdAt: -1 })
