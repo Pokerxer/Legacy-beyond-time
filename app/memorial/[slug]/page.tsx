@@ -44,9 +44,9 @@ export default function MemorialPage({
   const observerRef = useRef<IntersectionObserver | null>(null)
 
   const fetchTributes = () => {
-    fetch("/api/tributes?category=tribute")
+    fetch("/api/tributes")
       .then((res) => res.json())
-      .then((data) => setTributes(data))
+      .then((data) => setTributes(Array.isArray(data) ? data : []))
       .catch(() => {})
   }
 

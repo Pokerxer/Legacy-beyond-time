@@ -17,8 +17,8 @@ export default function TributesWall({ tributes, onOpenModal }: TributesWallProp
   const [visibleCondolences, setVisibleCondolences] = useState(6)
 
   const approved = tributes.filter((t) => t.isApproved)
-  const tributeItems = approved.filter((t) => t.relationship !== "Condolence")
-  const condolenceItems = approved.filter((t) => t.relationship === "Condolence")
+  const tributeItems = approved.filter((t) => t.category !== "condolence")
+  const condolenceItems = approved.filter((t) => t.category === "condolence")
 
   const shownTributes = tributeItems.slice(0, visibleTributes)
   const shownCondolences = condolenceItems.slice(0, visibleCondolences)
