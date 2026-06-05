@@ -603,7 +603,7 @@ export default function LandingPage() {
             className="text-sm"
             style={{ fontFamily: "var(--font-playfair)", color: "var(--text-primary)" }}
           >
-            In Loving Memory of Christiana O. Opara
+            In Loving Memory of Chief Ezinne Christiana Opara, JP.
           </span>
         </div>
         <p
