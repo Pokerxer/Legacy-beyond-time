@@ -5,9 +5,9 @@ const OG_IMAGE = "https://res.cloudinary.com/dpydlvp2h/image/upload/v1778345615/
 export const metadata: Metadata = {
   title: "In Loving Memory of Christiana O. Opara",
   description:
-    "Celebrating the life and legacy of Chief Mrs Ezinne Christiana Opara JP, Ugochinyere 1 of Oboetiti. A quintessential woman with a heart of gold. 12 Dec 1949 – 7 May 2026.",
+    "Celebrating the life and legacy of Chief Ezinne Christiana Opara JP, Ugochinyere 1 of Obetiti. A quintessential woman with a heart of gold. 12 Dec 1949 – 7 May 2026.",
   openGraph: {
-    title: "In Loving Memory of Chief Mrs Ezinne Christiana Opara JP",
+    title: "In Loving Memory of Chief Ezinne Christiana Opara JP",
     description:
       "A quintessential woman with a heart of gold. Share a tribute, condolence, or memory. 12 Dec 1949 – 7 May 2026.",
     images: [{ url: OG_IMAGE, width: 800, height: 800, alt: "Christiana O. Opara" }],
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "In Loving Memory of Chief Mrs Ezinne Christiana Opara JP",
+    title: "In Loving Memory of Chief Ezinne Christiana Opara JP",
     description: "A quintessential woman with a heart of gold. 12 Dec 1949 – 7 May 2026.",
     images: [OG_IMAGE],
   },

@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     template: "%s — Legacy Beyond Time",
   },
   description:
-    "A dignified memorial tribute for Chief Mrs Ezinne Christiana Opara JP. Share memories, tributes, condolences and photos.",
+    "A dignified memorial tribute for Chief Ezinne Christiana Opara JP. Share memories, tributes, condolences and photos.",
   openGraph: {
     type: "website",
     siteName: "Legacy Beyond Time",
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
         url: OG_IMAGE,
         width: 800,
         height: 800,
-        alt: "Chief Mrs Ezinne Christiana Opara JP",
+        alt: "Chief Ezinne Christiana Opara JP",
       },
     ],
   },

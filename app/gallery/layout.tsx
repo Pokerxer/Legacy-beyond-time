@@ -5,7 +5,7 @@ const OG_IMAGE = "https://res.cloudinary.com/dpydlvp2h/image/upload/v1778345287/
 export const metadata: Metadata = {
   title: "Photo Gallery",
   description:
-    "Share and view cherished photos of Chief Mrs Ezinne Christiana Opara JP. Every picture is a memory preserved forever.",
+    "Share and view cherished photos of Chief Ezinne Christiana Opara JP. Every picture is a memory preserved forever.",
   openGraph: {
     title: "Photo Gallery — Christiana O. Opara Memorial",
     description: "Share cherished photos and memories. Every picture preserved forever.",

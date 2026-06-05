@@ -7,7 +7,7 @@ const TO   = process.env.NOTIFICATION_EMAIL ?? ""
 
 const SITE_URL  = process.env.NEXTAUTH_URL ?? "http://localhost:3000"
 const DECEASED  = "Christiana O. Opara"
-const FULL_NAME = "Chief Mrs Ezinne Christiana Opara, JP"
+const FULL_NAME = "Chief Ezinne Christiana Opara, JP"
 
 // ─── Shared styles ─────────────────────────────────────────────────────────
 const base = `
