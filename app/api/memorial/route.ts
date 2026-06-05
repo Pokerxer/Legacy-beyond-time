@@ -6,27 +6,29 @@ import { MemorialModel } from "@/lib/models/Memorial"
 import { memorial as seed } from "@/data/memorial"
 
 async function getOrSeed() {
-  let doc = await MemorialModel.findOne({ slug: seed.slug })
-  if (!doc) {
-    doc = await MemorialModel.create({
-      slug: seed.slug,
-      fullName: seed.fullName,
-      shortName: seed.shortName,
-      dateOfBirth: seed.dateOfBirth,
-      dateOfDeath: seed.dateOfDeath,
-      birthPlace: seed.birthPlace,
-      coverPhoto: seed.coverPhoto,
-      profilePhoto: seed.profilePhoto,
-      biography: seed.biography,
-      tagline: seed.tagline,
-      legacyQuote: seed.legacyQuote,
-      achievements: seed.achievements,
-      family: seed.family,
-      grandchildren: seed.grandchildren,
-      funeralDetails: seed.funeralDetails,
-      isPublished: seed.isPublished,
-    })
-  }
+  const doc = await MemorialModel.findOneAndUpdate(
+    { slug: seed.slug },
+    {
+      $set: { fullName: seed.fullName, biography: seed.biography },
+      $setOnInsert: {
+        slug: seed.slug,
+        shortName: seed.shortName,
+        dateOfBirth: seed.dateOfBirth,
+        dateOfDeath: seed.dateOfDeath,
+        birthPlace: seed.birthPlace,
+        coverPhoto: seed.coverPhoto,
+        profilePhoto: seed.profilePhoto,
+        tagline: seed.tagline,
+        legacyQuote: seed.legacyQuote,
+        achievements: seed.achievements,
+        family: seed.family,
+        grandchildren: seed.grandchildren,
+        funeralDetails: seed.funeralDetails,
+        isPublished: seed.isPublished,
+      },
+    },
+    { new: true, upsert: true }
+  )
   return doc
 }
 
