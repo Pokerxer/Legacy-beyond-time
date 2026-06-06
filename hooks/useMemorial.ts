@@ -18,6 +18,7 @@ export function useMemorial(): Memorial {
     fetch("/api/memorial")
       .then((r) => r.json())
       .then((d: Memorial) => {
+        if (!d?.slug) return
         _cache = d
         setData(d)
       })
