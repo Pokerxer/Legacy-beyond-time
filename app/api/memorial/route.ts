@@ -6,30 +6,42 @@ import { MemorialModel } from "@/lib/models/Memorial"
 import { memorial as seed } from "@/data/memorial"
 
 async function getOrSeed() {
-  const doc = await MemorialModel.findOneAndUpdate(
-    { slug: seed.slug },
-    {
-      $set: {
-        slug: seed.slug,
-        fullName: seed.fullName,
-        shortName: seed.shortName,
-        dateOfBirth: seed.dateOfBirth,
-        dateOfDeath: seed.dateOfDeath,
-        birthPlace: seed.birthPlace,
-        coverPhoto: seed.coverPhoto,
-        profilePhoto: seed.profilePhoto,
-        biography: seed.biography,
-        tagline: seed.tagline,
-        legacyQuote: seed.legacyQuote,
-        achievements: seed.achievements,
-        family: seed.family,
-        grandchildren: seed.grandchildren,
-        funeralDetails: seed.funeralDetails,
-        isPublished: seed.isPublished,
+  let doc = await MemorialModel.findOne({ slug: seed.slug })
+  if (!doc) {
+    doc = await MemorialModel.create({
+      slug: seed.slug,
+      fullName: seed.fullName,
+      shortName: seed.shortName,
+      dateOfBirth: seed.dateOfBirth,
+      dateOfDeath: seed.dateOfDeath,
+      birthPlace: seed.birthPlace,
+      coverPhoto: seed.coverPhoto,
+      profilePhoto: seed.profilePhoto,
+      biography: seed.biography,
+      tagline: seed.tagline,
+      legacyQuote: seed.legacyQuote,
+      achievements: seed.achievements,
+      family: seed.family,
+      grandchildren: seed.grandchildren,
+      isPublished: seed.isPublished,
+    })
+  } else {
+    doc = await MemorialModel.findOneAndUpdate(
+      { slug: seed.slug },
+      {
+        $set: {
+          fullName: seed.fullName,
+          shortName: seed.shortName,
+          dateOfBirth: seed.dateOfBirth,
+          biography: seed.biography,
+          family: seed.family,
+          achievements: seed.achievements,
+          grandchildren: seed.grandchildren,
+        },
       },
-    },
-    { new: true, upsert: true }
-  )
+      { new: true, runValidators: false }
+    )
+  }
   return doc
 }
 
