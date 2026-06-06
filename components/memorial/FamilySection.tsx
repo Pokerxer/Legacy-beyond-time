@@ -15,6 +15,7 @@ const SPOUSE_RELATIONS = ["Son-in-Law", "Daughter-in-Law"]
 type FamilyGroup = { child: FamilyMember; spouse?: FamilyMember }
 
 function buildGroups(family: FamilyMember[]): FamilyGroup[] {
+  if (!family?.length) return []
   const groups: FamilyGroup[] = []
   let i = 0
   while (i < family.length) {
