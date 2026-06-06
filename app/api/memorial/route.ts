@@ -9,7 +9,7 @@ async function getOrSeed() {
   const doc = await MemorialModel.findOneAndUpdate(
     { slug: seed.slug },
     {
-      $set: { fullName: seed.fullName, biography: seed.biography },
+      $set: { fullName: seed.fullName, biography: seed.biography, shortName: seed.shortName },
       $setOnInsert: {
         slug: seed.slug,
         shortName: seed.shortName,

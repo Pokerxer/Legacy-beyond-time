@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "Legacy Beyond Time",
     title: "In Loving Memory of Christiana O. Opara",
-    description: "A quintessential woman with a heart of gold. 12 Dec 1949 – 7 May 2026.",
+    description: "A quintessential woman with a heart of gold. 12 Dec 1945 – 7 May 2026.",
     images: [
       {
         url: OG_IMAGE,
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "In Loving Memory of Christiana O. Opara",
-    description: "A quintessential woman with a heart of gold. 12 Dec 1949 – 7 May 2026.",
+    description: "A quintessential woman with a heart of gold. 12 Dec 1945 – 7 May 2026.",
     images: [OG_IMAGE],
   },
 };

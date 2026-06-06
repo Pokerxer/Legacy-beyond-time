@@ -5,14 +5,14 @@ export const memorial: Memorial = {
   slug: "christiana-opara",
   fullName: "Chief Ezinne Christiana Opara, JP. Ugochinyere 1 of Obetiti",
   shortName: "Christiana O. Opara",
-  dateOfBirth: "1949-12-12",
+  dateOfBirth: "1945-12-12",
   dateOfDeath: "2026-05-07",
   birthPlace: "Mbaise, Nigeria",
   coverPhoto: "https://res.cloudinary.com/dpydlvp2h/image/upload/v1778345287/forever-memorials/fsb1muhhmtlxp6lzz8ld.jpg",
   profilePhoto: "https://res.cloudinary.com/dpydlvp2h/image/upload/v1778345615/forever-memorials/w2y7vluldqssmn8ksdno.jpg",
   tagline: "A quintessential woman with a heart of gold.",
   biography: `
-    <p>With heavy hearts yet profound gratitude to God for a life beautifully spent, we celebrate the remarkable journey of Chief Ezinne Christiana Opara, JP, fondly known as Ugochinyere Mbaise — a virtuous woman, devoted Catholic, compassionate mother and pillar of humanity who peacefully answered the call of her Creator on the 7th of May, 2026 at the age of 78.</p>
+    <p>With heavy hearts yet profound gratitude to God for a life beautifully spent, we celebrate the remarkable journey of Chief Ezinne Christiana Opara, JP, fondly known as Ugochinyere Mbaise — a virtuous woman, devoted Catholic, compassionate mother and pillar of humanity who peacefully answered the call of her Creator on the 7th of May, 2026 at the age of 82.</p>
     <p>Mama lived a life defined by grace, service, kindness and uncommon generosity. She was not merely loved because she existed; she was loved because she intentionally poured herself into the lives of others. Her presence brought comfort, her words carried wisdom and her heart radiated warmth to everyone privileged to encounter her.</p>
     <p>A quintessential woman with a heart of gold, Chief Ezinne Christiana Opara embodied the true virtues of humility, strength, discipline and godliness. She stood as a beacon of hope to many widows, the downtrodden, the vulnerable and the forgotten in society. Her doors were never closed to those in need, and her hands were constantly extended in charity, encouragement and support. She believed that true greatness was measured not by wealth or status, but by the number of lives touched with love and compassion.</p>
     <p>As an ardent and devoted Catholic, Mama served God faithfully and wholeheartedly. Her dedication to the Catholic faith was unwavering, evident in her active involvement and immense contributions to the Church and particularly to the Catholic Women Organization (CWO), where she played impactful and admirable roles over the years. She was a woman deeply rooted in prayer, service and Christian values, inspiring many women to remain steadfast in faith and virtue.</p>

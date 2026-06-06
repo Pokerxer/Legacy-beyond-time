@@ -30,7 +30,7 @@ export default function HeroSection({
   coverPhoto,
   profilePhoto,
 }: HeroSectionProps) {
-  const initials = shortName
+  const initials = (shortName ?? "")
     .split(" ")
     .map((w) => w[0])
     .join("")
