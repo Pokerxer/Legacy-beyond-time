@@ -10,8 +10,27 @@ interface FamilySectionProps {
   grandchildren: string[]
 }
 
+const SPOUSE_RELATIONS = ["Son-in-Law", "Daughter-in-Law"]
+
+type FamilyGroup = { child: FamilyMember; spouse?: FamilyMember }
+
+function buildGroups(family: FamilyMember[]): FamilyGroup[] {
+  const groups: FamilyGroup[] = []
+  let i = 0
+  while (i < family.length) {
+    const member = family[i]
+    if (SPOUSE_RELATIONS.includes(member.relation)) { i++; continue }
+    const next = family[i + 1]
+    const spouse = next && SPOUSE_RELATIONS.includes(next.relation) ? next : undefined
+    groups.push({ child: member, spouse })
+    i += spouse ? 2 : 1
+  }
+  return groups
+}
+
 export default function FamilySection({ family, grandchildren }: FamilySectionProps) {
   const [showGrandchildren, setShowGrandchildren] = useState(false)
+  const groups = buildGroups(family)
 
   if (family.length === 0) return null
 
@@ -40,7 +59,7 @@ export default function FamilySection({ family, grandchildren }: FamilySectionPr
         </motion.p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {family.map((member, i) => (
+          {groups.map(({ child, spouse }, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 20 }}
@@ -53,22 +72,49 @@ export default function FamilySection({ family, grandchildren }: FamilySectionPr
                 border: "1px solid var(--border-gold)",
               }}
             >
+              {/* Child */}
               <span
-                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mb-2"
+                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mb-1"
                 style={{
                   background: "rgba(201,168,76,0.15)",
                   color: "var(--accent-gold)",
                   fontFamily: "var(--font-lato)",
                 }}
               >
-                {member.relation}
+                {child.relation}
               </span>
               <p
                 className="text-sm font-medium"
                 style={{ fontFamily: "var(--font-playfair)", color: "var(--text-primary)" }}
               >
-                {member.name}
+                {child.name}
               </p>
+
+              {/* Spouse */}
+              {spouse && (
+                <>
+                  <div
+                    className="my-3"
+                    style={{ borderTop: "1px solid rgba(201,168,76,0.2)" }}
+                  />
+                  <span
+                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mb-1"
+                    style={{
+                      background: "rgba(201,168,76,0.07)",
+                      color: "var(--text-muted)",
+                      fontFamily: "var(--font-lato)",
+                    }}
+                  >
+                    {spouse.relation}
+                  </span>
+                  <p
+                    className="text-sm font-medium"
+                    style={{ fontFamily: "var(--font-playfair)", color: "var(--text-primary)" }}
+                  >
+                    {spouse.name}
+                  </p>
+                </>
+              )}
             </motion.div>
           ))}
         </div>
