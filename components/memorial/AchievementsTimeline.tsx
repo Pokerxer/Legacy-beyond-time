@@ -8,7 +8,7 @@ interface AchievementsTimelineProps {
 }
 
 export default function AchievementsTimeline({ achievements }: AchievementsTimelineProps) {
-  if (achievements.length === 0) return null
+  if (!achievements?.length) return null
 
   return (
     <section id="achievements" className="px-6 py-16">

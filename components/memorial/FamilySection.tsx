@@ -32,7 +32,7 @@ export default function FamilySection({ family, grandchildren }: FamilySectionPr
   const [showGrandchildren, setShowGrandchildren] = useState(false)
   const groups = buildGroups(family)
 
-  if (family.length === 0) return null
+  if (!family?.length) return null
 
   return (
     <section id="family" className="px-6 py-16">

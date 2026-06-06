@@ -14,10 +14,10 @@ export default function GalleryGrid({ items }: GalleryGridProps) {
   const [current, setCurrent] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
-  const prev = useCallback(() => setCurrent((i) => (i - 1 + items.length) % items.length), [items.length])
-  const next = useCallback(() => setCurrent((i) => (i + 1) % items.length), [items.length])
+  const prev = useCallback(() => setCurrent((i) => (i - 1 + (items?.length ?? 1)) % (items?.length ?? 1)), [items?.length])
+  const next = useCallback(() => setCurrent((i) => (i + 1) % (items?.length ?? 1)), [items?.length])
 
-  if (items.length === 0) {
+  if (!items?.length) {
     return (
       <section id="gallery" className="px-6 py-16">
         <div className="max-w-4xl mx-auto">
