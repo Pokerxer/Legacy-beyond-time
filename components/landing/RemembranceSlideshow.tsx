@@ -7,7 +7,6 @@ import { ChevronLeft, ChevronRight, Pause, Play, Expand, Loader2 } from "lucide-
 import { fadeUpInView } from "./animations"
 import Lightbox from "@/components/ui/Lightbox"
 import type { GalleryItem } from "@/types"
-import { memorial as staticMemorial } from "@/data/memorial"
 
 interface GalleryDoc {
   _id: string
@@ -17,8 +16,8 @@ interface GalleryDoc {
 }
 
 export default function RemembranceSlideshow() {
-  const [gallery, setGallery] = useState<GalleryItem[]>(staticMemorial.gallery)
-  const [loading, setLoading] = useState(false)
+  const [gallery, setGallery] = useState<GalleryItem[]>([])
+  const [loading, setLoading] = useState(true)
   const [current, setCurrent] = useState(0)
   const [paused, setPaused] = useState(false)
   const [lightboxOpen, setLightboxOpen] = useState(false)
@@ -39,6 +38,7 @@ export default function RemembranceSlideshow() {
         }
       })
       .catch(() => {})
+      .finally(() => setLoading(false))
   }, [])
 
   const goTo = useCallback(
