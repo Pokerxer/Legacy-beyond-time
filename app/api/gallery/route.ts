@@ -14,14 +14,18 @@ export async function GET() {
     let images = await GalleryImage.find().sort({ order: 1, createdAt: -1 }).lean()
 
     if (images.length === 0) {
-      const seedData = memorial.gallery.map((item, i) => ({
-        url: item.url,
-        publicId: extractPublicId(item.url),
-        caption: item.caption,
-        order: i,
-      }))
-      await GalleryImage.insertMany(seedData)
-      images = await GalleryImage.find().sort({ order: 1 }).lean()
+      try {
+        const seedData = memorial.gallery.map((item, i) => ({
+          url: item.url,
+          publicId: extractPublicId(item.url),
+          caption: item.caption,
+          order: i,
+        }))
+        await GalleryImage.insertMany(seedData, { ordered: false })
+        images = await GalleryImage.find().sort({ order: 1 }).lean()
+      } catch {
+        images = await GalleryImage.find().sort({ order: 1 }).lean()
+      }
     }
 
     return NextResponse.json(images)
